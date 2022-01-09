@@ -1,9 +1,6 @@
-name: Build
+name: Build lastest
 
-on:
-  push:
-    branches:
-      - release
+on: [push]
 
 jobs:
   build:
