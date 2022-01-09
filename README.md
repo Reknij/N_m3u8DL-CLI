@@ -4,6 +4,8 @@ I trying migrate to dotnet 6.
 
 Success download video on debian11 without argument. Other idk.. no test.
 
+Already disable auto update..
+
 Must install ffmpeg yourself:
 ```
 sudo apt install ffmpeg
