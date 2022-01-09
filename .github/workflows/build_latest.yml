@@ -1,34 +1,34 @@
-name: Build_Latest
- 
-on: [push]
- 
+name: Build
+
+on:
+  push:
+    branches:
+      - release
+
 jobs:
   build:
- 
     runs-on: windows-latest
- 
     steps:
-    - uses: actions/checkout@v1
-      name: Checkout Code
-     
-    - name: Setup MSBuild Path
-      uses: warrenbuckley/Setup-MSBuild@v1
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-       
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-     
-    - name: Restore NuGet Packages
-      run: nuget restore N_m3u8DL-CLI.sln
- 
-    - name: Build 
-      run: msbuild N_m3u8DL-CLI.sln /p:Configuration=Release /p:DebugSymbols=false /p:DebugType=None
- 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: N_m3u8DL-CLI_latest
-        path: N_m3u8DL-CLI\bin\Release\N_m3u8DL-CLI.exe
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.x.x'
+
+      - name: Pack
+        run: dotnet build -c Release --os linux
+
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
+      - name: Zip output
+        run: zip -qq -r N_m3u8DL-CLI-core-linux.zip NO_UPDATE N_m3u8DL-CLI-core N_m3u8DL-CLI-core.deps.json N_m3u8DL-CLI-core.dll N_m3u8DL-CLI-core.runtimeconfig.json en-US
+        working-directory: N_m3u8DL-CLI-core\bin\Release\net6.0\linux-x64
+
+      - name: upload release
+        uses: actions/upload-artifact@v2
+        with:
+          name: N_m3u8DL-CLI-core
+          path: N_m3u8DL-CLI-core\bin\Release\net6.0\linux-x64\N_m3u8DL-CLI-core-linux.zip
