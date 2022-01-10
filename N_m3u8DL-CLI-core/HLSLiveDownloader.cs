@@ -18,14 +18,14 @@ namespace N_m3u8DL_CLI_core
         private string jsonFile = string.Empty;
         private string headers = string.Empty;
         private string downDir = string.Empty;
-        private FileStream liveStream = null;
+        private FileStream? liveStream = null;
         private double targetduration = 10;
         private bool isFirstJson = true;
 
         public double TotalDuration { get; set; }
         public string Headers { get => headers; set => headers = value; }
         public string DownDir { get => downDir; set => downDir = value; }
-        public FileStream LiveStream { get => liveStream; set => liveStream = value; }
+        public FileStream LiveStream { get => liveStream ?? throw new NullReferenceException("liveStream is null"); set => liveStream = value; }
         public string LiveFile { get => liveFile; set => liveFile = value; }
 
         ArrayList toDownList = new ArrayList();  //所有待下载的列表
@@ -48,7 +48,7 @@ namespace N_m3u8DL_CLI_core
         }
 
         //更新列表
-        private void UpdateList(object source, EventArgs e)
+        private void UpdateList(object? source, EventArgs e)
         {
             jsonFile = Path.Combine(DownDir, "meta.json");
             if (!File.Exists(jsonFile)) 
@@ -58,11 +58,11 @@ namespace N_m3u8DL_CLI_core
             }
             string jsonContent = File.ReadAllText(jsonFile);
             JObject initJson = JObject.Parse(jsonContent);
-            string m3u8Url = initJson["m3u8"].Value<string>();
-            targetduration = initJson["m3u8Info"]["targetDuration"].Value<double>();
-            TotalDuration = initJson["m3u8Info"]["totalDuration"].Value<double>();
+            string m3u8Url = initJson["m3u8"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+            targetduration = initJson["m3u8Info"]?["targetDuration"]?.Value<double>() ?? throw new NullReferenceException("Get json target data failed.");
+            TotalDuration = initJson["m3u8Info"]?["totalDuration"]?.Value<double>() ?? throw new NullReferenceException("Get json target data failed.");
             timer.Interval = (TotalDuration - targetduration) * 1000;//设置定时器运行间隔
-            JArray lastSegments = JArray.Parse(initJson["m3u8Info"]["segments"][0].ToString().Trim());  //上次的分段，用于比对新分段
+            JArray lastSegments = JArray.Parse(initJson["m3u8Info"]?["segments"]?[0]?.ToString().Trim() ?? throw new NullReferenceException("Get json target data failed."));  //上次的分段，用于比对新分段
             ArrayList tempList = new ArrayList();  //所有待下载的列表
             tempList.Clear();
             foreach (JObject seg in lastSegments)
@@ -78,14 +78,14 @@ namespace N_m3u8DL_CLI_core
             }
 
             Parser parser = new Parser();
-            parser.DownDir = Path.GetDirectoryName(jsonFile);
+            parser.DownDir = Path.GetDirectoryName(jsonFile) ?? throw new NullReferenceException("Get directory path failed.");
             parser.M3u8Url = m3u8Url;
             parser.LiveStream = true;
             parser.Parse();  //产生新的json文件
 
             jsonContent = File.ReadAllText(jsonFile);
             initJson = JObject.Parse(jsonContent);
-            JArray segments = JArray.Parse(initJson["m3u8Info"]["segments"][0].ToString());  //大分组
+            JArray segments = JArray.Parse(initJson["m3u8Info"]?["segments"]?[0]?.ToString() ?? throw new NullReferenceException("Get json target data failed."));  //大分组
             foreach (JObject seg in segments)
             {
                 if (!tempList.Contains(seg.ToString()))
@@ -117,19 +117,19 @@ namespace N_m3u8DL_CLI_core
         {
             while (toDownList.Count > 0 && (sd.FileUrl != "" ? sd.IsDone : true)) 
             {
-                JObject info = JObject.Parse(toDownList[0].ToString());
-                int index = info["index"].Value<int>();
-                sd.FileUrl = info["segUri"].Value<string>();
-                sd.Method = info["method"].Value<string>();
+                JObject info = JObject.Parse(toDownList[0]?.ToString() ?? throw new NullReferenceException("Get json target data failed."));
+                int index = info["index"]?.Value<int>() ?? throw new NullReferenceException("Get json target data failed.");
+                sd.FileUrl = info["segUri"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                sd.Method = info["method"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                 if (sd.Method != "NONE")
                 {
-                    sd.Key = info["key"].Value<string>();
-                    sd.Iv = info["iv"].Value<string>();
+                    sd.Key = info["key"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                    sd.Iv = info["iv"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                 }
                 sd.TimeOut = (int)timer.Interval - 1000;//超时时间不超过下次执行时间
                 sd.SegIndex = index;
                 sd.Headers = Headers;
-                sd.SegDur = info["duration"].Value<double>();
+                sd.SegDur = info["duration"]?.Value<double>() ?? throw new NullReferenceException("Get json target data failed.");
                 sd.IsLive = true;  //标记为直播
                 sd.LiveFile = LiveFile;
                 sd.LiveStream = LiveStream;

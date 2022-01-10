@@ -41,9 +41,9 @@ namespace N_m3u8DL_CLI_core
 
 
         /*===============================================================================*/
-        static Version ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        static Version ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version ?? new Version("version get failed.");
         static string nowVer = $"{ver.Major}.{ver.Minor}.{ver.Build}";
-        static string nowDate = "20220109";
+        static string nowDate = "20220110";
         public static void WriteInit()
         {
             Console.WriteLine($"N_m3u8DL-CLI-core version {nowVer} 2018-2022");
@@ -63,13 +63,14 @@ namespace N_m3u8DL_CLI_core
                     try
                     {
                         //尝试下载新版本
+                        string newFilePath = Path.Combine(PublicHelper.Paths.AppDirectoryPath, $"N_m3u8DL-CLI_v{latestVer}.exe");
                         string url = $"https://mirror.ghproxy.com/https://github.com/nilaoda/N_m3u8DL-CLI/releases/download/{latestVer}/N_m3u8DL-CLI_v{latestVer}.exe";
-                        if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), $"N_m3u8DL-CLI_v{latestVer}.exe")))
+                        if (File.Exists(newFilePath))
                         {
                             Console.Title = string.Format(stringscore.newerVerisonDownloaded, latestVer);
                         }
-                        HttpDownloadFile(url, Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), $"N_m3u8DL-CLI_v{latestVer}.exe")).Wait();
-                        if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), $"N_m3u8DL-CLI_v{latestVer}.exe")))
+                        HttpDownloadFile(url, newFilePath).Wait();
+                        if (File.Exists(newFilePath))
                             Console.Title = string.Format(stringscore.newerVerisonDownloaded, latestVer);
                         else
                             Console.Title = string.Format(stringscore.newerVerisonDownloadFailed, latestVer);
@@ -355,7 +356,7 @@ namespace N_m3u8DL_CLI_core
             else
                 div = 200;
 
-            string outputName = Path.Combine(Path.GetDirectoryName(files[0]), "T");
+            string outputName = Path.Combine(Path.GetDirectoryName(files[0]) ?? throw new NullReferenceException("Get directory path failed."), "T");
             int index = 0; //序号
 
             //按照div的容量分割为小数组
@@ -384,7 +385,7 @@ namespace N_m3u8DL_CLI_core
             //同名文件已存在的共存策略
             if (File.Exists(outputFilePath))
             {
-                outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath),
+                outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath) ?? throw new NullReferenceException("Get directory path failed."),
                     Path.GetFileNameWithoutExtension(outputFilePath) + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + Path.GetExtension(outputFilePath));
             }
             if (files.Length == 1)
@@ -395,7 +396,7 @@ namespace N_m3u8DL_CLI_core
             }
 
             if (!Directory.Exists(Path.GetDirectoryName(outputFilePath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
+                Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath) ?? throw new NullReferenceException("Get directory path failed."));
 
             string[] inputFilePaths = files;
             using (var outputStream = File.Create(outputFilePath))
@@ -537,15 +538,23 @@ namespace N_m3u8DL_CLI_core
 
         reProcess:
             byte[] arraryByte;
-
-            var response = await client.GetAsync(url);
+            HttpResponseMessage response;
+            try
+            {
+                response = await client.GetAsync(url);
+            }
+            catch (Exception ex)
+            {
+                LOGGER.WriteLineError(ex.Message);
+                return new byte[0];
+            }
             //302
             if (response.Headers.Location != null)
             {
                 url = response.Headers.Location.ToString();
                 goto reProcess;
             }
-            if (response.Content.Headers.ContentEncoding != null && response.Content.Headers.ContentEncoding.First().ToLower() == "gzip") //如果使用了GZip则先解压
+            if (response.Content.Headers.ContentEncoding.Count > 0 && response.Content.Headers.ContentEncoding.First().ToLower() == "gzip") //如果使用了GZip则先解压
             {
                 using (Stream streamReceive = response.Content.ReadAsStream())
                 {
@@ -802,7 +811,7 @@ namespace N_m3u8DL_CLI_core
             JsonSerializer serializer = new JsonSerializer();
             TextReader tr = new StringReader(str);
             JsonTextReader jtr = new JsonTextReader(tr);
-            object obj = serializer.Deserialize(jtr);
+            object? obj = serializer.Deserialize(jtr);
             if (obj != null)
             {
                 StringWriter textWriter = new StringWriter();
@@ -911,9 +920,9 @@ namespace N_m3u8DL_CLI_core
             foreach (string s in (string[])RegexFind("Stream #.*", sb.ToString()).ToArray(typeof(string)))
             {
                 res = "PID "
-                    + RegexFind(@"\[(0x\d{2,})\]", s, 1)[0].ToString() + ": "
-                    + RegexFind(@": (.*)", s, 1)[0].ToString()
-                    .Replace(RegexFind(@" \(\[.*?\)", s)[0].ToString(), "")
+                    + RegexFind(@"\[(0x\d{2,})\]", s, 1)[0]?.ToString() ?? "(error find)" + ": "
+                    + RegexFind(@": (.*)", s, 1)[0]?.ToString() ?? "(error find)"
+                    .Replace(RegexFind(@" \(\[.*?\)", s)[0]?.ToString() ?? "(error find)", "")
                     .Replace(": ", " ");
 
                 if (VIDEO_TYPE == "" && res.Contains(": Video")) 
@@ -1131,13 +1140,14 @@ namespace N_m3u8DL_CLI_core
         //检测GZip并解压
         public static void GzipHandler(string file)
         {
+            string fileDirectoryPath = Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed");
             try
             {
                 using (FileStream fr = File.OpenRead(file))
                 {
                     using (GZipStream gz = new GZipStream(fr, CompressionMode.Decompress))
                     {
-                        using (FileStream fw = File.OpenWrite(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[t].ts")))
+                        using (FileStream fw = File.OpenWrite(Path.Combine(fileDirectoryPath, Path.GetFileNameWithoutExtension(file) + "[t].ts")))
                         {
                             byte[] by = new byte[1024];
                             int r = gz.Read(by, 0, by.Length);
@@ -1149,13 +1159,13 @@ namespace N_m3u8DL_CLI_core
                         }
                     }
                     File.Delete(file);
-                    File.Move(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[t].ts"), file);
+                    File.Move(Path.Combine(fileDirectoryPath, Path.GetFileNameWithoutExtension(file) + "[t].ts"), file);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (File.Exists(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[t].ts")))
-                    File.Delete(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[t].ts"));
+                if (File.Exists(Path.Combine(fileDirectoryPath, Path.GetFileNameWithoutExtension(file) + "[t].ts")))
+                    File.Delete(Path.Combine(fileDirectoryPath, Path.GetFileNameWithoutExtension(file) + "[t].ts"));
                 return;
             }
         }

@@ -97,8 +97,10 @@ namespace N_m3u8DL_CLI_core
             long startIndex = 0;
             int targetDuration = 0;
             double totalDuration = 0;
+#pragma warning disable CS0219 // 变量已被赋值，但从未使用过它的值
             bool expectSegment = false, expectPlaylist = false, isIFramesOnly = false,
                 isIndependentSegments = false, isEndlist = false, isAd = false, isM3u = false;
+#pragma warning restore CS0219 // 变量已被赋值，但从未使用过它的值
 
 
             //获取m3u8内容
@@ -300,7 +302,7 @@ namespace N_m3u8DL_CLI_core
                         segIndex = Convert.ToInt64(line.Replace(HLSTags.ext_x_media_sequence + ":", "").Trim());
                         startIndex = segIndex;
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_discontinuity_sequence)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_discontinuity_sequence)) ;
                     else if (line.StartsWith(HLSTags.ext_x_program_date_time))
                     {
                         if (string.IsNullOrEmpty(FFmpeg.REC_TIME))
@@ -326,11 +328,11 @@ namespace N_m3u8DL_CLI_core
                             segments = new JArray();
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_cue_out)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_cue_out_start)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_cue_span)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_version)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_allow_cache)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_out)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_out_start)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_span)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_version)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_allow_cache)) ;
                     //解析KEY
                     else if (line.StartsWith(HLSTags.ext_x_key))
                     {
@@ -389,7 +391,7 @@ namespace N_m3u8DL_CLI_core
                         extList = new string[] { bandwidth, average_bandwidth, codecs, resolution,
                             frame_rate,hdcp_level,audio,video,subtitles,closed_captions };
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_i_frame_stream_inf)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_i_frame_stream_inf)) ;
                     else if (line.StartsWith(HLSTags.ext_x_media))
                     {
                         var groupId = Global.GetTagAttribute(line, "GROUP-ID");
@@ -425,7 +427,7 @@ namespace N_m3u8DL_CLI_core
                             }
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_playlist_type)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_playlist_type)) ;
                     else if (line.StartsWith(HLSTags.ext_i_frames_only))
                     {
                         isIFramesOnly = true;
@@ -462,7 +464,7 @@ namespace N_m3u8DL_CLI_core
                             break;
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_start)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_start)) ;
                     //评论行不解析
                     else if (line.StartsWith("#")) continue;
                     //空白行不解析
@@ -626,7 +628,12 @@ namespace N_m3u8DL_CLI_core
                     }
                     LOGGER.PrintLine("Please Select What You Want.(Up To 1 Track)");
                     Console.Write("".PadRight(13) + "Enter Number: ");
-                    var input = Console.ReadLine();
+                    int input;
+                    while (true)
+                    {
+                        if (int.TryParse(Console.ReadLine(), out input))
+                            break;
+                    }
                     cursorIndex += 2;
                     for (int i = startCursorIndex; i < cursorIndex; i++)
                     {
@@ -634,7 +641,7 @@ namespace N_m3u8DL_CLI_core
                         Console.Write("".PadRight(300));
                     }
                     Console.SetCursorPosition(0, startCursorIndex);
-                    audioUrl = MEDIA_AUDIO_GROUP[bestUrlAudio][int.Parse(input)].Uri;
+                    audioUrl = MEDIA_AUDIO_GROUP[bestUrlAudio][input].Uri;
                 }
             }
             if (bestUrlSub != "" && MEDIA_SUB_GROUP.ContainsKey(bestUrlSub))
@@ -656,7 +663,12 @@ namespace N_m3u8DL_CLI_core
                     }
                     LOGGER.PrintLine("Please Select What You Want.(Up To 1 Track)");
                     Console.Write("".PadRight(13) + "Enter Number: ");
-                    var input = Console.ReadLine();
+                    int input;
+                    while (true)
+                    {
+                        if (int.TryParse(Console.ReadLine(), out input))
+                            break;
+                    }
                     cursorIndex += 2;
                     for (int i = startCursorIndex; i < cursorIndex; i++)
                     {
@@ -664,7 +676,7 @@ namespace N_m3u8DL_CLI_core
                         Console.Write("".PadRight(300));
                     }
                     Console.SetCursorPosition(0, startCursorIndex);
-                    subUrl = MEDIA_SUB_GROUP[bestUrlSub][int.Parse(input)].Uri;
+                    subUrl = MEDIA_SUB_GROUP[bestUrlSub][input].Uri;
                 }
             }
             if (audioUrl != "")
@@ -721,16 +733,16 @@ namespace N_m3u8DL_CLI_core
                     {
                         foreach (var seg in part)
                         {
-                            dur += Convert.ToDouble(seg["duration"].ToString());
+                            dur += Convert.ToDouble(seg["duration"]?.ToString());
                             if (flag1 == false && dur > secStart)
                             {
-                                RangeStart = seg["index"].Value<int>();
+                                RangeStart = seg["index"]?.Value<int>() ?? throw new NullReferenceException("get null of Jtoken");
                                 flag1 = true;
                             }
 
                             if (flag2 == false && dur >= secEnd)
                             {
-                                RangeEnd = seg["index"].Value<int>();
+                                RangeEnd = seg["index"]?.Value<int>() ?? throw new NullReferenceException("get null of Jtoken");
                                 flag2 = true;
                             }
                         }
@@ -752,11 +764,11 @@ namespace N_m3u8DL_CLI_core
                     JArray newPart = new JArray();
                     foreach (var seg in part)
                     {
-                        if (RangeStart <= seg["index"].Value<int>() && seg["index"].Value<int>() <= RangeEnd)
+                        if (RangeStart <= seg["index"]?.Value<int>() && seg["index"]?.Value<int>() <= RangeEnd)
                         {
                             newPart.Add(seg);
                             newCount++;
-                            newTotalDuration += Convert.ToDouble(seg["duration"].ToString());
+                            newTotalDuration += Convert.ToDouble(seg["duration"]?.ToString());
                         }
                     }
                     if (newPart.Count != 0)
@@ -882,7 +894,7 @@ namespace N_m3u8DL_CLI_core
             //若存在多个清晰度条目，输出另一个json文件存放
             if (extLists.Count != 0)
             {
-                File.Copy(m3u8SavePath, Path.Combine(Path.GetDirectoryName(m3u8SavePath), "master.m3u8"), true);
+                File.Copy(m3u8SavePath, Path.Combine(Path.GetDirectoryName(m3u8SavePath) ?? throw new NullReferenceException("Get directory path failed"), "master.m3u8"), true);
                 LOGGER.WriteLine("Master List Found");
                 LOGGER.PrintLine(stringscore.masterListFound, LOGGER.Warning);
                 var json = new JObject();
@@ -902,7 +914,7 @@ namespace N_m3u8DL_CLI_core
                 //输出json文件
                 LOGGER.WriteLine(stringscore.wrtingMasterMeta);
                 LOGGER.PrintLine(stringscore.wrtingMasterMeta);
-                File.WriteAllText(Path.Combine(Path.GetDirectoryName(jsonSavePath), "playLists.json"), json.ToString());
+                File.WriteAllText(Path.Combine(Path.GetDirectoryName(jsonSavePath) ?? throw new NullReferenceException("Get directory failed"), "playLists.json"), json.ToString());
                 LOGGER.WriteLine(stringscore.selectPlaylist + ": " + bestUrl);
                 LOGGER.PrintLine(stringscore.selectPlaylist);
                 LOGGER.WriteLine(stringscore.startReParsing);
@@ -914,16 +926,16 @@ namespace N_m3u8DL_CLI_core
             }
         }
 
-        //解决低版本.Net框架的一个BUG（XP上百分之百复现）
-        //https://stackoverflow.com/questions/781205/getting-a-url-with-an-url-encoded-slash#
-        private void ForceCanonicalPathAndQuery(Uri uri)
-        {
-            string paq = uri.PathAndQuery; // need to access PathAndQuery
-            FieldInfo flagsFieldInfo = typeof(Uri).GetField("m_Flags", BindingFlags.Instance | BindingFlags.NonPublic);
-            ulong flags = (ulong)flagsFieldInfo.GetValue(uri);
-            flags &= ~((ulong)0x30); // Flags.PathNotCanonical|Flags.QueryNotCanonical
-            flagsFieldInfo.SetValue(uri, flags);
-        }
+        ////解决低版本.Net框架的一个BUG（XP上百分之百复现）
+        ////https://stackoverflow.com/questions/781205/getting-a-url-with-an-url-encoded-slash#
+        //private void ForceCanonicalPathAndQuery(Uri uri)
+        //{
+        //    string paq = uri.PathAndQuery; // need to access PathAndQuery
+        //    FieldInfo flagsFieldInfo = typeof(Uri).GetField("m_Flags", BindingFlags.Instance | BindingFlags.NonPublic);
+        //    ulong flags = (ulong)flagsFieldInfo.GetValue(uri);
+        //    flags &= ~((ulong)0x30); // Flags.PathNotCanonical|Flags.QueryNotCanonical
+        //    flagsFieldInfo.SetValue(uri, flags);
+        //}
 
         /// <summary>
         /// 拼接Baseurl和RelativeUrl

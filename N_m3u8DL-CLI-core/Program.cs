@@ -40,18 +40,19 @@ namespace N_m3u8DL_CLI_core
         //    return false;
         //}
 
-        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
-
         private static bool checkWithTerminal()
         {
             Process p = new Process();
-
-            p.StartInfo.FileName = "/bin/bash";
+            string terminal = "cmd.exe";
+            string argument = "ffmpeg";
+            if (OperatingSystem.IsLinux())
+            {
+                terminal = "/bin/bash";
+                argument = "-c ffmpeg";
+            }
+            p.StartInfo.FileName = terminal;
             p.StartInfo.UseShellExecute = false;
-            p.StartInfo.Arguments = "-c ffmpeg";
+            p.StartInfo.Arguments = argument;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
@@ -71,7 +72,7 @@ namespace N_m3u8DL_CLI_core
         {
             /******************************************************/
             //SetConsoleCtrlHandler(cancelHandler, true); //error in linux
-            ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
+            ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             ServicePointManager.DefaultConnectionLimit = 1024;
             /******************************************************/
 
@@ -92,19 +93,15 @@ namespace N_m3u8DL_CLI_core
             {
                 FFmpeg.FFMPEG_PATH = Path.Combine(Environment.CurrentDirectory, "ffmpeg.exe");
             }
-            else if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "ffmpeg.exe")))
+            else if (File.Exists(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "ffmpeg.exe")))
             {
-                FFmpeg.FFMPEG_PATH = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "ffmpeg.exe");
+                FFmpeg.FFMPEG_PATH = Path.Combine(PublicHelper.Paths.AppDirectoryPath, "ffmpeg.exe");
             }
-            else if (checkWithTerminal())
-            {
-                FFmpeg.FFMPEG_PATH = "ffmpeg";
-            }
-            else
+            else if(OperatingSystem.IsWindows())
             {
                 try
                 {
-                    string[] EnvironmentPath = Environment.GetEnvironmentVariable("Path").Split(';');
+                    string[] EnvironmentPath = Environment.GetEnvironmentVariable("Path")?.Split(';') ?? new string[0];
                     foreach (var de in EnvironmentPath)
                     {
                         if (File.Exists(Path.Combine(de.Trim('\"').Trim(), "ffmpeg.exe")))
@@ -131,9 +128,13 @@ namespace N_m3u8DL_CLI_core
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+            else if (checkWithTerminal())
+            {
+                FFmpeg.FFMPEG_PATH = "ffmpeg";
+            }
 
         HasFFmpeg:
-            if (!File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "NO_UPDATE")))
+            if (!File.Exists(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "NO_UPDATE")))
             {
                 Thread checkUpdate = new Thread(() =>
                 {
@@ -163,15 +164,15 @@ namespace N_m3u8DL_CLI_core
             //如果只有URL，没有附加参数，则尝试解析配置文件
             else if (args.Length == 1 || (args.Length == 3 && args[1].ToLower() == "--savename"))
             {
-                if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "N_m3u8DL-CLI.args.txt")))
+                if (File.Exists(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "N_m3u8DL-CLI.args.txt")))
                 {
                     if (args.Length == 3)
                     {
-                        args = Global.ParseArguments($"\"{args[0]}\" {args[1]} {args[2]} " + File.ReadAllText(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "N_m3u8DL-CLI.args.txt"))).ToArray();  //解析命令行
+                        args = Global.ParseArguments($"\"{args[0]}\" {args[1]} {args[2]} " + File.ReadAllText(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "N_m3u8DL-CLI.args.txt"))).ToArray();  //解析命令行
                     }
                     else
                     {
-                        args = Global.ParseArguments($"\"{args[0]}\" " + File.ReadAllText(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "N_m3u8DL-CLI.args.txt"))).ToArray();  //解析命令行
+                        args = Global.ParseArguments($"\"{args[0]}\" " + File.ReadAllText(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "N_m3u8DL-CLI.args.txt"))).ToArray();  //解析命令行
                     }
                 }
             }
@@ -191,11 +192,10 @@ namespace N_m3u8DL_CLI_core
             {
                 Global.WriteInit();
                 //当前程序路径（末尾有\）
-                string CURRENT_PATH = Directory.GetCurrentDirectory();
                 string fileName = Global.GetValidFileName(o.SaveName);
                 string reqHeaders = o.Headers;
                 string muxSetJson = o.MuxSetJson ?? "MUXSETS.json";
-                string workDir = Path.Combine(CURRENT_PATH, "Downloads");
+                string workDir = Path.Combine(PublicHelper.Paths.AppDirectoryPath, "Downloads");
                 string keyFile = "";
                 string keyBase64 = "";
                 string keyIV = "";
@@ -232,8 +232,8 @@ namespace N_m3u8DL_CLI_core
                         keyFile = o.UseKeyFile;
                 }
 
-                if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "headers.txt")))
-                    reqHeaders = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "headers.txt"));
+                if (File.Exists(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "headers.txt")))
+                    reqHeaders = File.ReadAllText(Path.Combine(PublicHelper.Paths.AppDirectoryPath, "headers.txt"));
 
                 if (!string.IsNullOrEmpty(o.LiveRecDur))
                 {
@@ -286,7 +286,7 @@ namespace N_m3u8DL_CLI_core
 
                 int inputRetryCount = 20;
             input:
-                string testurl = o.Input;
+                string testurl = o.Input ?? throw new NullReferenceException("input is null");
 
                 //重试太多次，退出
                 if (inputRetryCount == 0)
@@ -334,8 +334,7 @@ namespace N_m3u8DL_CLI_core
                 if (baseUrl != "")
                     parser.BaseUrl = baseUrl;
                 parser.Headers = reqHeaders;
-                string exePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-                LOGGER.LOGFILE = Path.Combine(exePath, "Logs", DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fff") + ".log");
+                LOGGER.LOGFILE = Path.Combine(PublicHelper.Paths.AppDirectoryPath, "Logs", DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fff") + ".log");
                 LOGGER.InitLog();
                 LOGGER.WriteLine(stringscore.startParsing + testurl);
                 LOGGER.PrintLine(stringscore.startParsing + " " + testurl, LOGGER.Warning);
@@ -360,12 +359,12 @@ namespace N_m3u8DL_CLI_core
                 if (File.Exists(Path.Combine(Path.Combine(workDir, fileName), "meta.json")))
                 {
                     JObject initJson = JObject.Parse(File.ReadAllText(Path.Combine(Path.Combine(workDir, fileName), "meta.json")));
-                    isVOD = Convert.ToBoolean(initJson["m3u8Info"]["vod"].ToString());
+                    isVOD = Convert.ToBoolean(initJson["m3u8Info"]?["vod"]?.ToString());
                     //传给Watcher总时长
-                    Watcher.TotalDuration = initJson["m3u8Info"]["totalDuration"].Value<double>();
+                    Watcher.TotalDuration = initJson["m3u8Info"]?["totalDuration"]?.Value<double>() ?? throw new NullReferenceException("Cant get total duration");
                     LOGGER.PrintLine($"{stringscore.fileDuration}{Global.FormatTime((int)Watcher.TotalDuration)}");
-                    LOGGER.PrintLine(stringscore.segCount + initJson["m3u8Info"]["originalCount"].Value<int>()
-                        + $", {stringscore.selectedCount}" + initJson["m3u8Info"]["count"].Value<int>());
+                    LOGGER.PrintLine(stringscore.segCount + initJson["m3u8Info"]?["originalCount"]?.Value<int>()
+                        + $", {stringscore.selectedCount}" + initJson["m3u8Info"]?["count"]?.Value<int>());
                 }
                 else
                 {
@@ -411,7 +410,7 @@ namespace N_m3u8DL_CLI_core
                     LOGGER.PrintLine(stringscore.liveStreamFoundAndRecoding);
                     //LOGGER.STOPLOG = true;  //停止记录日志
                     //开辟文件流，且不关闭。（便于播放器不断读取文件）
-                    string LivePath = Path.Combine(Directory.GetParent(parser.DownDir).FullName
+                    string LivePath = Path.Combine(Directory.GetParent(parser.DownDir)?.FullName ?? throw new ArgumentNullException("Get download directory path failed")
                         , DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "_" + fileName + ".ts");
                     FileStream outputStream = new FileStream(LivePath, FileMode.Append);
 

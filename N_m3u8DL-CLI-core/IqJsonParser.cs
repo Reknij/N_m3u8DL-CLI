@@ -13,8 +13,8 @@ namespace N_m3u8DL_CLI_core
         public static string Parse(string downDir, string json)
         {
             JObject jObject = JObject.Parse(json);
-            var aClips = jObject["payload"]["wm_a"]["audio_track1"]["files"].Value<JArray>();
-            var vClips = jObject["payload"]["wm_a"]["video_track1"]["files"].Value<JArray>();
+            var aClips = jObject["payload"]?["wm_a"]?["audio_track1"]?["files"]?.Value<JArray>() ?? throw new NullReferenceException("Get json target data failed.");
+            var vClips = jObject["payload"]?["wm_a"]?["video_track1"]?["files"]?.Value<JArray>() ?? throw new NullReferenceException("Get json target data failed.");
 
             var codecsList = new List<string>();
 
@@ -25,7 +25,7 @@ namespace N_m3u8DL_CLI_core
 
             if (aClips.Count > 0)
             {
-                var init = jObject["payload"]["wm_a"]["audio_track1"]["codec_init"].Value<string>();
+                var init = jObject["payload"]?["wm_a"]?["audio_track1"]?["codec_init"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                 byte[] bytes = Convert.FromBase64String(init);
                 //输出init文件
                 audioInitPath = Path.Combine(downDir, "iqAudioInit.mp4");
@@ -35,26 +35,26 @@ namespace N_m3u8DL_CLI_core
                 sb.AppendLine("#EXT-X-VERSION:3");
                 sb.AppendLine("#EXT-X-PLAYLIST-TYPE:VOD");
                 sb.AppendLine("#CREATED-BY:N_m3u8DL-CLI");
-                sb.AppendLine($"#EXT-CODEC:{jObject["payload"]["wm_a"]["audio_track1"]["codec"].Value<string>()}");
-                sb.AppendLine($"#EXT-KID:{jObject["payload"]["wm_a"]["audio_track1"]["key_id"].Value<string>()}");
+                sb.AppendLine($"#EXT-CODEC:{jObject["payload"]?["wm_a"]?["audio_track1"]?["codec"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.")}");
+                sb.AppendLine($"#EXT-KID:{jObject["payload"]?["wm_a"]?["audio_track1"]?["key_id"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.")}");
                 sb.AppendLine($"#EXT-X-MAP:URI=\"{new Uri(Path.Combine(downDir + "(Audio)", "iqAudioInit.mp4")).ToString()}\"");
                 sb.AppendLine("#EXT-X-KEY:METHOD=PLZ-KEEP-RAW,URI=\"None\"");
                 foreach (var a in aClips)
                 {
-                    sb.AppendLine($"#EXTINF:{a["duration_second"].ToString()}");
-                    sb.AppendLine(a["file_name"].Value<string>());
+                    sb.AppendLine($"#EXTINF:{a["duration_second"]?.ToString()}");
+                    sb.AppendLine(a["file_name"]?.Value<string>());
                 }
                 sb.AppendLine("#EXT-X-ENDLIST");
                 //输出m3u8文件
                 var _path = Path.Combine(downDir, "iqAudio.m3u8");
                 File.WriteAllText(_path, sb.ToString());
                 audioPath = new Uri(_path).ToString();
-                codecsList.Add(jObject["payload"]["wm_a"]["audio_track1"]["codec"].Value<string>());
+                codecsList.Add(jObject["payload"]?["wm_a"]?["audio_track1"]?["codec"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed."));
             }
 
             if (vClips.Count > 0)
             {
-                var init = jObject["payload"]["wm_a"]["video_track1"]["codec_init"].Value<string>();
+                var init = jObject["payload"]?["wm_a"]?["video_track1"]?["codec_init"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                 byte[] bytes = Convert.FromBase64String(init);
                 //输出init文件
                 videoInitPath = Path.Combine(downDir, "iqVideoInit.mp4");
@@ -64,24 +64,24 @@ namespace N_m3u8DL_CLI_core
                 sb.AppendLine("#EXT-X-VERSION:3");
                 sb.AppendLine("#EXT-X-PLAYLIST-TYPE:VOD");
                 sb.AppendLine("#CREATED-BY:N_m3u8DL-CLI");
-                sb.AppendLine($"#EXT-CODEC:{jObject["payload"]["wm_a"]["video_track1"]["codec"].Value<string>()}");
-                sb.AppendLine($"#EXT-KID:{jObject["payload"]["wm_a"]["video_track1"]["key_id"].Value<string>()}");
+                sb.AppendLine($"#EXT-CODEC:{jObject["payload"]?["wm_a"]?["video_track1"]?["codec"]?.Value<string>()}");
+                sb.AppendLine($"#EXT-KID:{jObject["payload"]?["wm_a"]?["video_track1"]?["key_id"]?.Value<string>()}");
                 sb.AppendLine($"#EXT-X-MAP:URI=\"{new Uri(videoInitPath).ToString()}\"");
                 sb.AppendLine("#EXT-X-KEY:METHOD=PLZ-KEEP-RAW,URI=\"None\"");
                 foreach (var a in vClips)
                 {
-                    var start = a["seekable"]["pos_start"].Value<long>();
-                    var size = a["size"].Value<long>();
-                    sb.AppendLine($"#EXTINF:{a["duration_second"].ToString()}");
+                    var start = a["seekable"]?["pos_start"]?.Value<long>();
+                    var size = a["size"]?.Value<long>();
+                    sb.AppendLine($"#EXTINF:{a["duration_second"]?.ToString()}");
                     sb.AppendLine($"#EXT-X-BYTERANGE:{size}@{start}");
-                    sb.AppendLine(a["file_name"].Value<string>());
+                    sb.AppendLine(a["file_name"]?.Value<string>());
                 }
                 sb.AppendLine("#EXT-X-ENDLIST");
                 //输出m3u8文件
                 var _path = Path.Combine(downDir, "iqVideo.m3u8");
                 File.WriteAllText(_path, sb.ToString());
                 videoPath = new Uri(_path).ToString();
-                codecsList.Add(jObject["payload"]["wm_a"]["video_track1"]["codec"].Value<string>());
+                codecsList.Add(jObject["payload"]?["wm_a"]?["video_track1"]?["codec"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed."));
             }
 
             var content = "";

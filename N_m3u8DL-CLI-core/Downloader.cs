@@ -69,6 +69,8 @@ namespace N_m3u8DL_CLI_core
 
         public async Task<bool> Down()
         {
+            string saveDirectoryPath = Path.GetDirectoryName(savePath) ?? throw new NullReferenceException("Get directory path failed");
+
             try
             {
                 //直播下载
@@ -131,10 +133,10 @@ namespace N_m3u8DL_CLI_core
                 //点播下载
                 else
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(SavePath)))
-                        Directory.CreateDirectory(Path.GetDirectoryName(SavePath)); //新建文件夹  
+                    if (!Directory.Exists(saveDirectoryPath))
+                        Directory.CreateDirectory(saveDirectoryPath); //新建文件夹  
                     //是否存在文件，存在则不下载
-                    if (File.Exists(Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath) + ".ts")))
+                    if (File.Exists(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts")))
                     {
                         Global.BYTEDOWN++; //防止被速度监控程序杀死
                         //Console.WriteLine("Exists " + Path.GetFileNameWithoutExtension(savePath) + ".ts");
@@ -186,7 +188,7 @@ namespace N_m3u8DL_CLI_core
                     FileInfo fi = new FileInfo(savePath);
                     if (Method == "NONE" || method.Contains("NOTSUPPORTED"))
                     {
-                        fi.MoveTo(Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath) + ".ts"));
+                        fi.MoveTo(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts"));
                         DownloadManager.DownloadedSize += fi.Length;
                         //Console.WriteLine(Path.GetFileNameWithoutExtension(savePath) + " Completed.");
                     }
@@ -214,7 +216,7 @@ namespace N_m3u8DL_CLI_core
                                     Decrypter.HexStringToBytes(Iv)
                                     );
                             }
-                            FileStream fs = new FileStream(Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath) + ".ts"), FileMode.Create);
+                            FileStream fs = new FileStream(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts"), FileMode.Create);
                             fs.Write(decryptBuff, 0, decryptBuff.Length);
                             fs.Close();
                             DownloadManager.DownloadedSize += fi.Length;

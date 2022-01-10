@@ -27,7 +27,7 @@ namespace N_m3u8DL_CLI_core
             //同名文件已存在的共存策略
             if (File.Exists($"{OutPutPath}.{muxFormat.ToLower()}")) 
             {
-                OutPutPath = Path.Combine(Path.GetDirectoryName(OutPutPath),
+                OutPutPath = Path.Combine(Path.GetDirectoryName(OutPutPath) ?? throw new NullReferenceException("Get directory path failed."),
                     Path.GetFileName(OutPutPath) + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
             }
 
@@ -84,7 +84,7 @@ namespace N_m3u8DL_CLI_core
 
             }
 
-            Run(FFMPEG_PATH, command, Path.GetDirectoryName(files[0]));
+            Run(FFMPEG_PATH, command, Path.GetDirectoryName(files[0]) ?? throw new NullReferenceException("Get directory path failed."));
             LOGGER.WriteLine(stringscore.ffmpegDone);
             //Console.WriteLine(command);
         }
@@ -96,11 +96,11 @@ namespace N_m3u8DL_CLI_core
                 Run(FFMPEG_PATH,
                     "-loglevel quiet -i \"" + file + "\" -map 0 -c copy -copy_unknown -f mpegts -bsf:v h264_mp4toannexb \""
                     + Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts\"", 
-                    Path.GetDirectoryName(file));
-                if (File.Exists(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts")))
+                    Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."));
+                if (File.Exists(Path.Combine(Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts")))
                 {
                     File.Delete(file);
-                    File.Move(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts"), file);
+                    File.Move(Path.Combine(Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts"), file);
                 }
             }
             else if (Global.VIDEO_TYPE == "H265")
@@ -108,11 +108,11 @@ namespace N_m3u8DL_CLI_core
                 Run(FFMPEG_PATH,
                     "-loglevel quiet -i \"" + file + "\" -map 0 -c copy -copy_unknown -f mpegts -bsf:v hevc_mp4toannexb \""
                     + Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts\"",
-                    Path.GetDirectoryName(file));
-                if (File.Exists(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts")))
+                    Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."));
+                if (File.Exists(Path.Combine(Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts")))
                 {
                     File.Delete(file);
-                    File.Move(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts"), file);
+                    File.Move(Path.Combine(Path.GetDirectoryName(file) ?? throw new NullReferenceException("Get directory path failed."), Path.GetFileNameWithoutExtension(file) + "[MPEGTS].ts"), file);
                 }
             }
             else
