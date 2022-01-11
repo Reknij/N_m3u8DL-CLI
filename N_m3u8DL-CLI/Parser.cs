@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class Parser
     {
@@ -97,8 +97,10 @@ namespace N_m3u8DL_CLI
             long startIndex = 0;
             int targetDuration = 0;
             double totalDuration = 0;
+#pragma warning disable CS0219 // 变量已被赋值，但从未使用过它的值
             bool expectSegment = false, expectPlaylist = false, isIFramesOnly = false,
                 isIndependentSegments = false, isEndlist = false, isAd = false, isM3u = false;
+#pragma warning restore CS0219 // 变量已被赋值，但从未使用过它的值
 
 
             //获取m3u8内容
@@ -113,11 +115,11 @@ namespace N_m3u8DL_CLI
             if (M3u8Url.StartsWith("http"))
             {
                 if (M3u8Url.Contains("nfmovies.com/hls"))
-                    m3u8Content = DecodeNfmovies.DecryptM3u8(Global.HttpDownloadFileToBytes(M3u8Url, Headers));
+                    m3u8Content = DecodeNfmovies.DecryptM3u8(Global.HttpDownloadFileToBytes(M3u8Url, Headers).GetAwaiter().GetResult());
                 else if (M3u8Url.Contains("hls.ddyunp.com/ddyun") || M3u8Url.Contains("hls.90mm.me/ddyun"))
-                    m3u8Content = DecodeDdyun.DecryptM3u8(Global.HttpDownloadFileToBytes(DecodeDdyun.GetVaildM3u8Url(M3u8Url), Headers));
+                    m3u8Content = DecodeDdyun.DecryptM3u8(Global.HttpDownloadFileToBytes(DecodeDdyun.GetVaildM3u8Url(M3u8Url), Headers).GetAwaiter().GetResult());
                 else
-                    m3u8Content = Global.GetWebSource(M3u8Url, Headers);
+                    m3u8Content = Global.GetWebSource(M3u8Url, Headers).GetAwaiter().GetResult();
             }
             else if (M3u8Url.StartsWith("file:"))
             {
@@ -152,7 +154,7 @@ namespace N_m3u8DL_CLI
                 //输出mpd文件
                 File.WriteAllText(mpdSavePath, m3u8Content);
                 //分析mpd文件
-                M3u8Url = Global.Get302(M3u8Url, Headers);
+                M3u8Url = Global.Get302(M3u8Url, Headers).GetAwaiter().GetResult();
                 var newUri = MPDParser.Parse(DownDir, M3u8Url, m3u8Content, BaseUrl);
                 M3u8Url = newUri;
                 m3u8Content = File.ReadAllText(new Uri(M3u8Url).LocalPath);
@@ -209,7 +211,7 @@ namespace N_m3u8DL_CLI
                 if (new Regex("#YUMING\\|(.*)").IsMatch(m3u8Content))
                     BaseUrl = new Regex("#YUMING\\|(.*)").Match(m3u8Content).Groups[1].Value;
                 else
-                    BaseUrl = GetBaseUrl(M3u8Url, Headers);
+                    BaseUrl = GetBaseUrl(M3u8Url, Headers).GetAwaiter().GetResult();
             }
 
             //if (!LiveStream)
@@ -225,7 +227,7 @@ namespace N_m3u8DL_CLI
                     line = $"#EXT-X-KEY:METHOD=AES-128,URI=\"base64:{KeyBase64}\"";
                 else
                     line = $"#EXT-X-KEY:METHOD=AES-128,URI=\"base64:{KeyBase64}\",IV=0x{KeyIV.Replace("0x", "")}";
-                m3u8CurrentKey = ParseKey(line);
+                m3u8CurrentKey = ParseKey(line).GetAwaiter().GetResult();
             }
             if (!string.IsNullOrEmpty(KeyFile))
             {
@@ -236,13 +238,13 @@ namespace N_m3u8DL_CLI
                 else
                     line = $"#EXT-X-KEY:METHOD=AES-128,URI=\"{u.ToString()}\",IV=0x{KeyIV.Replace("0x", "")}";
 
-                m3u8CurrentKey = ParseKey(line);
+                m3u8CurrentKey = ParseKey(line).GetAwaiter().GetResult();
             }
 
             //逐行分析
             using (StringReader sr = new StringReader(m3u8Content))
             {
-                string line;
+                string? line;
                 double segDuration = 0;
                 string segUrl = string.Empty;
                 //#EXT-X-BYTERANGE:<n>[@<o>]
@@ -300,7 +302,7 @@ namespace N_m3u8DL_CLI
                         segIndex = Convert.ToInt64(line.Replace(HLSTags.ext_x_media_sequence + ":", "").Trim());
                         startIndex = segIndex;
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_discontinuity_sequence)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_discontinuity_sequence)) ;
                     else if (line.StartsWith(HLSTags.ext_x_program_date_time))
                     {
                         if (string.IsNullOrEmpty(FFmpeg.REC_TIME))
@@ -326,11 +328,11 @@ namespace N_m3u8DL_CLI
                             segments = new JArray();
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_cue_out)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_cue_out_start)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_cue_span)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_version)) ;
-                    else if (line.StartsWith(HLSTags.ext_x_allow_cache)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_out)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_out_start)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_cue_span)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_version)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_allow_cache)) ;
                     //解析KEY
                     else if (line.StartsWith(HLSTags.ext_x_key))
                     {
@@ -345,7 +347,7 @@ namespace N_m3u8DL_CLI
                         }
                         else
                         {
-                            m3u8CurrentKey = ParseKey(line);
+                            m3u8CurrentKey = ParseKey(line).GetAwaiter().GetResult();
                             //存储为上一行的key信息
                             lastKeyLine = line;
                         }
@@ -389,7 +391,7 @@ namespace N_m3u8DL_CLI
                         extList = new string[] { bandwidth, average_bandwidth, codecs, resolution,
                             frame_rate,hdcp_level,audio,video,subtitles,closed_captions };
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_i_frame_stream_inf)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_i_frame_stream_inf)) ;
                     else if (line.StartsWith(HLSTags.ext_x_media))
                     {
                         var groupId = Global.GetTagAttribute(line, "GROUP-ID");
@@ -425,7 +427,7 @@ namespace N_m3u8DL_CLI
                             }
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_playlist_type)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_playlist_type)) ;
                     else if (line.StartsWith(HLSTags.ext_i_frames_only))
                     {
                         isIFramesOnly = true;
@@ -462,7 +464,7 @@ namespace N_m3u8DL_CLI
                             break;
                         }
                     }
-                    else if (line.StartsWith(HLSTags.ext_x_start)) ;
+                    //else if (line.StartsWith(HLSTags.ext_x_start)) ;
                     //评论行不解析
                     else if (line.StartsWith("#")) continue;
                     //空白行不解析
@@ -594,7 +596,6 @@ namespace N_m3u8DL_CLI
                 audioUrl = "";
                 bestUrlAudio = "";
                 Parse();
-                return;
             }
 
             //构造JSON文件
@@ -627,7 +628,12 @@ namespace N_m3u8DL_CLI
                     }
                     LOGGER.PrintLine("Please Select What You Want.(Up To 1 Track)");
                     Console.Write("".PadRight(13) + "Enter Number: ");
-                    var input = Console.ReadLine();
+                    int input;
+                    while (true)
+                    {
+                        if (int.TryParse(Console.ReadLine(), out input))
+                            break;
+                    }
                     cursorIndex += 2;
                     for (int i = startCursorIndex; i < cursorIndex; i++)
                     {
@@ -635,7 +641,7 @@ namespace N_m3u8DL_CLI
                         Console.Write("".PadRight(300));
                     }
                     Console.SetCursorPosition(0, startCursorIndex);
-                    audioUrl = MEDIA_AUDIO_GROUP[bestUrlAudio][int.Parse(input)].Uri;
+                    audioUrl = MEDIA_AUDIO_GROUP[bestUrlAudio][input].Uri;
                 }
             }
             if (bestUrlSub != "" && MEDIA_SUB_GROUP.ContainsKey(bestUrlSub))
@@ -657,7 +663,12 @@ namespace N_m3u8DL_CLI
                     }
                     LOGGER.PrintLine("Please Select What You Want.(Up To 1 Track)");
                     Console.Write("".PadRight(13) + "Enter Number: ");
-                    var input = Console.ReadLine();
+                    int input;
+                    while (true)
+                    {
+                        if (int.TryParse(Console.ReadLine(), out input))
+                            break;
+                    }
                     cursorIndex += 2;
                     for (int i = startCursorIndex; i < cursorIndex; i++)
                     {
@@ -665,7 +676,7 @@ namespace N_m3u8DL_CLI
                         Console.Write("".PadRight(300));
                     }
                     Console.SetCursorPosition(0, startCursorIndex);
-                    subUrl = MEDIA_SUB_GROUP[bestUrlSub][int.Parse(input)].Uri;
+                    subUrl = MEDIA_SUB_GROUP[bestUrlSub][input].Uri;
                 }
             }
             if (audioUrl != "")
@@ -722,16 +733,16 @@ namespace N_m3u8DL_CLI
                     {
                         foreach (var seg in part)
                         {
-                            dur += Convert.ToDouble(seg["duration"].ToString());
+                            dur += Convert.ToDouble(seg["duration"]?.ToString());
                             if (flag1 == false && dur > secStart)
                             {
-                                RangeStart = seg["index"].Value<int>();
+                                RangeStart = seg["index"]?.Value<int>() ?? throw new NullReferenceException("get null of Jtoken");
                                 flag1 = true;
                             }
 
                             if (flag2 == false && dur >= secEnd)
                             {
-                                RangeEnd = seg["index"].Value<int>();
+                                RangeEnd = seg["index"]?.Value<int>() ?? throw new NullReferenceException("get null of Jtoken");
                                 flag2 = true;
                             }
                         }
@@ -753,11 +764,11 @@ namespace N_m3u8DL_CLI
                     JArray newPart = new JArray();
                     foreach (var seg in part)
                     {
-                        if (RangeStart <= seg["index"].Value<int>() && seg["index"].Value<int>() <= RangeEnd)
+                        if (RangeStart <= seg["index"]?.Value<int>() && seg["index"]?.Value<int>() <= RangeEnd)
                         {
                             newPart.Add(seg);
                             newCount++;
-                            newTotalDuration += Convert.ToDouble(seg["duration"].ToString());
+                            newTotalDuration += Convert.ToDouble(seg["duration"]?.ToString());
                         }
                     }
                     if (newPart.Count != 0)
@@ -786,7 +797,7 @@ namespace N_m3u8DL_CLI
         }
 
         bool downloadingM3u8KeyTip = false;
-        public string[] ParseKey(string line)
+        public async Task<string[]> ParseKey(string line)
         {
             if (!downloadingM3u8KeyTip)
             {
@@ -825,11 +836,11 @@ namespace N_m3u8DL_CLI
                         string keyUrl = key[1];
                         if (key[1].Contains("imooc.com/"))
                         {
-                            key[1] = DecodeImooc.DecodeKey(Global.GetWebSource(key[1], Headers));
+                            key[1] = DecodeImooc.DecodeKey(await Global.GetWebSource(key[1], Headers));
                         }
                         else if (key[1] == "https://hls.ventunotech.com/m3u8/pc_videosecurevtnkey.key")
                         {
-                            string temp = Global.GetWebSource(keyUrl, Headers);
+                            string temp = await Global.GetWebSource(keyUrl, Headers);
                             LOGGER.PrintLine(temp);
                             byte[] tempKey = new byte[16];
                             for (int d = 0; d < 16; d++)
@@ -840,14 +851,14 @@ namespace N_m3u8DL_CLI
                         }
                         else if (key[1].Contains("drm.vod2.myqcloud.com/getlicense"))
                         {
-                            var temp = Global.HttpDownloadFileToBytes(keyUrl, Headers);
+                            var temp = await Global.HttpDownloadFileToBytes(keyUrl, Headers);
                             key[1] = DecodeHuke88Key.DecodeKey(key[1], temp);
                         }
                         else
                         {
                             if (keyUrl.Contains("https://keydeliver.linetv.tw/jurassicPark"))  //linetv
                                 keyUrl = keyUrl + "?time=" + Global.GetTimeStamp(false);
-                            key[1] = Convert.ToBase64String(Global.HttpDownloadFileToBytes(keyUrl, Headers));
+                            key[1] = Convert.ToBase64String(await Global.HttpDownloadFileToBytes(keyUrl, Headers));
                         }
                     }
                     //DMM网站
@@ -862,12 +873,12 @@ namespace N_m3u8DL_CLI
                         {
                             string lessonId = Global.GetQueryString("lesson_id", keyUrl);
                             keyUrl = keyUrl + "&sign=" + Decode51CtoKey.GetSign(lessonId);
-                            var encodeKey = Encoding.UTF8.GetString(Global.HttpDownloadFileToBytes(keyUrl, Headers));
+                            var encodeKey = Encoding.UTF8.GetString(await Global.HttpDownloadFileToBytes(keyUrl, Headers));
                             key[1] = Decode51CtoKey.GetDecodeKey(encodeKey, lessonId);
                         }
                         else
                         {
-                            key[1] = Convert.ToBase64String(Global.HttpDownloadFileToBytes(keyUrl, Headers));
+                            key[1] = Convert.ToBase64String(await Global.HttpDownloadFileToBytes(keyUrl, Headers));
                         }
                     }
                 }
@@ -883,7 +894,7 @@ namespace N_m3u8DL_CLI
             //若存在多个清晰度条目，输出另一个json文件存放
             if (extLists.Count != 0)
             {
-                File.Copy(m3u8SavePath, Path.GetDirectoryName(m3u8SavePath) + "\\master.m3u8", true);
+                File.Copy(m3u8SavePath, Path.Combine(Path.GetDirectoryName(m3u8SavePath) ?? throw new NullReferenceException("Get directory path failed"), "master.m3u8"), true);
                 LOGGER.WriteLine("Master List Found");
                 LOGGER.PrintLine(strings.masterListFound, LOGGER.Warning);
                 var json = new JObject();
@@ -903,7 +914,7 @@ namespace N_m3u8DL_CLI
                 //输出json文件
                 LOGGER.WriteLine(strings.wrtingMasterMeta);
                 LOGGER.PrintLine(strings.wrtingMasterMeta);
-                File.WriteAllText(Path.GetDirectoryName(jsonSavePath) + "\\playLists.json", json.ToString());
+                File.WriteAllText(Path.Combine(Path.GetDirectoryName(jsonSavePath) ?? throw new NullReferenceException("Get directory failed"), "playLists.json"), json.ToString());
                 LOGGER.WriteLine(strings.selectPlaylist + ": " + bestUrl);
                 LOGGER.PrintLine(strings.selectPlaylist);
                 LOGGER.WriteLine(strings.startReParsing);
@@ -915,16 +926,16 @@ namespace N_m3u8DL_CLI
             }
         }
 
-        //解决低版本.Net框架的一个BUG（XP上百分之百复现）
-        //https://stackoverflow.com/questions/781205/getting-a-url-with-an-url-encoded-slash#
-        private void ForceCanonicalPathAndQuery(Uri uri)
-        {
-            string paq = uri.PathAndQuery; // need to access PathAndQuery
-            FieldInfo flagsFieldInfo = typeof(Uri).GetField("m_Flags", BindingFlags.Instance | BindingFlags.NonPublic);
-            ulong flags = (ulong)flagsFieldInfo.GetValue(uri);
-            flags &= ~((ulong)0x30); // Flags.PathNotCanonical|Flags.QueryNotCanonical
-            flagsFieldInfo.SetValue(uri, flags);
-        }
+        ////解决低版本.Net框架的一个BUG（XP上百分之百复现）
+        ////https://stackoverflow.com/questions/781205/getting-a-url-with-an-url-encoded-slash#
+        //private void ForceCanonicalPathAndQuery(Uri uri)
+        //{
+        //    string paq = uri.PathAndQuery; // need to access PathAndQuery
+        //    FieldInfo flagsFieldInfo = typeof(Uri).GetField("m_Flags", BindingFlags.Instance | BindingFlags.NonPublic);
+        //    ulong flags = (ulong)flagsFieldInfo.GetValue(uri);
+        //    flags &= ~((ulong)0x30); // Flags.PathNotCanonical|Flags.QueryNotCanonical
+        //    flagsFieldInfo.SetValue(uri, flags);
+        //}
 
         /// <summary>
         /// 拼接Baseurl和RelativeUrl
@@ -944,7 +955,7 @@ namespace N_m3u8DL_CLI
 
             Uri uri1 = new Uri(baseurl);  //这里直接传完整的URL即可
             Uri uri2 = new Uri(uri1, url);  
-            ForceCanonicalPathAndQuery(uri2);  //兼容XP的低版本.Net
+            //ForceCanonicalPathAndQuery(uri2);  //兼容XP的低版本.Net
             url = uri2.ToString();
 
 
@@ -970,9 +981,9 @@ namespace N_m3u8DL_CLI
         /// </summary>
         /// <param name="m3u8url"></param>
         /// <returns></returns>
-        public static string GetBaseUrl(string m3u8url, string headers)
+        public static async Task<string> GetBaseUrl(string m3u8url, string headers)
         {
-            string url = Global.Get302(m3u8url, headers);
+            string url = await Global.Get302(m3u8url, headers);
             if (url.Contains("?"))
                 url = url.Remove(url.LastIndexOf('?'));
             url = url.Substring(0, url.LastIndexOf('/') + 1);

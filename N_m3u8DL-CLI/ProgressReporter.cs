@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class ProgressReporter
     {

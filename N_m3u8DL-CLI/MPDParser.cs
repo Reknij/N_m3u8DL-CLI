@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     //code from https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/extractor/common.py#L2076
     class MPDParser
@@ -25,7 +25,7 @@ namespace N_m3u8DL_CLI
                 if (segmentTimeline != null)
                 {
                     var sE = segmentTimeline.SelectNodes("ns:S", nsMgr);
-                    if (sE.Count > 0)
+                    if (sE?.Count > 0)
                     {
                         MultisegmentInfo["TotalNumber"] = 0;
                         var SList = new List<Dictionary<string, dynamic>>();
@@ -78,7 +78,7 @@ namespace N_m3u8DL_CLI
             {
                 ExtractCommon(segmentList);
                 ExtractInitialization(segmentList);
-                var segmentUrlsE = segmentList.SelectNodes("ns:SegmentURL", nsMgr);
+                var segmentUrlsE = segmentList.SelectNodes("ns:SegmentURL", nsMgr) ?? throw new NullReferenceException("XmlNodeList is null");
                 MultisegmentInfo["SegmentUrls"] = new List<string>();
                 foreach (XmlElement segment in segmentUrlsE)
                 {
@@ -135,7 +135,7 @@ namespace N_m3u8DL_CLI
             XmlDocument mpdDoc = new XmlDocument();
             mpdDoc.LoadXml(mpdContent);
 
-            XmlNode xn = null;
+            XmlNode? xn = null;
             //Select MPD node
             foreach (XmlNode node in mpdDoc.ChildNodes)
             {
@@ -145,6 +145,8 @@ namespace N_m3u8DL_CLI
                     break;
                 }
             }
+            if (xn == null) throw new NullReferenceException("XmlNode is null");
+
             var mediaPresentationDuration = ((XmlElement)xn).GetAttribute("mediaPresentationDuration");
             var ns = ((XmlElement)xn).GetAttribute("xmlns");
 
@@ -156,7 +158,7 @@ namespace N_m3u8DL_CLI
             var formatList = new List<Dictionary<string, dynamic>>(); //存放所有音视频清晰度
             var periodIndex = 0; //解决同一个period且同id导致被重复添加分片
 
-            foreach (XmlElement period in xn.SelectNodes("ns:Period", nsMgr))
+            foreach (XmlElement period in xn.SelectNodes("ns:Period", nsMgr) ?? throw new NullReferenceException("XmlNodeList is null"))
             {
                 periodIndex++;
                 var periodDuration = string.IsNullOrEmpty(period.GetAttribute("duration")) ? XmlConvert.ToTimeSpan(mediaPresentationDuration) : XmlConvert.ToTimeSpan(period.GetAttribute("duration"));
@@ -165,10 +167,10 @@ namespace N_m3u8DL_CLI
                     ["StartNumber"] = 1,
                     ["Timescale"] = 1
                 });
-                foreach (XmlElement adaptationSet in period.SelectNodes("ns:AdaptationSet", nsMgr))
+                foreach (XmlElement adaptationSet in period.SelectNodes("ns:AdaptationSet", nsMgr) ?? throw new NullReferenceException("XmlNodeList is null"))
                 {
                     var adaptionSetMsInfo = ExtractMultisegmentInfo(adaptationSet, nsMgr, periodMsInfo);
-                    foreach (XmlElement representation in adaptationSet.SelectNodes("ns:Representation", nsMgr))
+                    foreach (XmlElement representation in adaptationSet.SelectNodes("ns:Representation", nsMgr) ?? throw new NullReferenceException("XmlNodeList is null"))
                     {
                         string GetAttribute(string key)
                         {
@@ -694,13 +696,14 @@ namespace N_m3u8DL_CLI
             {
                 bool checkValid(string url)
                 {
+                    HttpClient client = new HttpClient()
+                    {
+                        Timeout = new TimeSpan(0, 0, 0, 0, 120000)
+                    };
                     try
                     {
-                        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(url));
-                        request.Timeout = 120000;
-                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                        if (((int)response.StatusCode).ToString().StartsWith("2")) return true;
-                        else return false;
+                        var rep = client.GetAsync(url).Result;
+                        return rep.IsSuccessStatusCode;
                     }
                     catch (Exception) { return false; }
                 }

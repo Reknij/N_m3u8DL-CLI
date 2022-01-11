@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class Downloader
     {
@@ -29,7 +29,7 @@ namespace N_m3u8DL_CLI
         private bool isLive = false;
         private bool isDone = false;
         private bool firstSeg = true;
-        private FileStream liveStream = null;
+        private FileStream? liveStream = null;
 
         public string FileUrl { get => fileUrl; set => fileUrl = value; }
         public string SavePath { get => savePath; set => savePath = value; }
@@ -42,7 +42,11 @@ namespace N_m3u8DL_CLI
         public bool IsDone { get => isDone; set => isDone = value; }
         public int SegIndex { get => segIndex; set => segIndex = value; }
         public int TimeOut { get => timeOut; set => timeOut = value; }
-        public FileStream LiveStream { get => liveStream; set => liveStream = value; }
+        public FileStream LiveStream { get
+            {
+                if (liveStream != null) return liveStream;
+                throw new NullReferenceException("liveStream is null");
+            } set => liveStream = value; }
         public string LiveFile { get => liveFile; set => liveFile = value; }
         public long ExpectByte { get => expectByte; set => expectByte = value; }
         public long StartByte { get => startByte; set => startByte = value; }
@@ -63,8 +67,10 @@ namespace N_m3u8DL_CLI
         //WebClient client = new WebClient();
 
 
-        public void Down()
+        public async Task<bool> Down()
         {
+            string saveDirectoryPath = Path.GetDirectoryName(savePath) ?? throw new NullReferenceException("Get directory path failed");
+
             try
             {
                 //直播下载
@@ -76,7 +82,7 @@ namespace N_m3u8DL_CLI
                     {
                         LOGGER.PrintLine("<" + SegIndex + " Downloading>");
                         LOGGER.WriteLine("<" + SegIndex + " Downloading>");
-                        byte[] segBuff = Global.HttpDownloadFileToBytes(fileUrl, Headers, TimeOut);
+                        byte[] segBuff = await Global.HttpDownloadFileToBytes(fileUrl, Headers, TimeOut);
                         //byte[] segBuff = Global.WebClientDownloadToBytes(fileUrl, Headers);
                         Global.AppendBytesToFileStreamAndDoNotClose(LiveStream, segBuff);
                         LOGGER.PrintLine("<" + SegIndex + " Complete>\r\n");
@@ -87,9 +93,9 @@ namespace N_m3u8DL_CLI
                     {
                         LOGGER.PrintLine("<" + SegIndex + " Downloading>");
                         LOGGER.WriteLine("<" + SegIndex + " Downloading>");
-                        byte[] encryptedBuff = Global.HttpDownloadFileToBytes(fileUrl, Headers, TimeOut);
+                        byte[] encryptedBuff = await Global.HttpDownloadFileToBytes(fileUrl, Headers, TimeOut);
                         //byte[] encryptedBuff = Global.WebClientDownloadToBytes(fileUrl, Headers);
-                        byte[] decryptBuff = null;
+                        byte[]? decryptBuff = null;
                         decryptBuff = Decrypter.AES128Decrypt(
                             encryptedBuff,
                             Convert.FromBase64String(Key),
@@ -122,19 +128,19 @@ namespace N_m3u8DL_CLI
                         LOGGER.WriteLine(strings.recordLimitReached);
                         Environment.Exit(0); //正常退出
                     }
-                    return;
+                    return IsDone;
                 }
                 //点播下载
                 else
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(SavePath)))
-                        Directory.CreateDirectory(Path.GetDirectoryName(SavePath)); //新建文件夹  
+                    if (!Directory.Exists(saveDirectoryPath))
+                        Directory.CreateDirectory(saveDirectoryPath); //新建文件夹  
                     //是否存在文件，存在则不下载
-                    if (File.Exists(Path.GetDirectoryName(savePath) + "\\" + Path.GetFileNameWithoutExtension(savePath) + ".ts"))
+                    if (File.Exists(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts")))
                     {
                         Global.BYTEDOWN++; //防止被速度监控程序杀死
                         //Console.WriteLine("Exists " + Path.GetFileNameWithoutExtension(savePath) + ".ts");
-                        return;
+                        return IsDone;
                     }
                     //Console.WriteLine("开始下载 " + fileUrl);
                     //本地文件
@@ -160,8 +166,8 @@ namespace N_m3u8DL_CLI
                                 stream.Read(buffer, 0, Convert.ToInt32(buffer.Length));
                                 stream.Close();
                                 //写出文件
-                                MemoryStream m = new MemoryStream(buffer);
-                                FileStream fs = new FileStream(savePath, FileMode.OpenOrCreate);
+                                MemoryStream? m = new MemoryStream(buffer);
+                                FileStream? fs = new FileStream(savePath, FileMode.OpenOrCreate);
                                 m.WriteTo(fs);
                                 m.Close();
                                 fs.Close();
@@ -173,15 +179,16 @@ namespace N_m3u8DL_CLI
                     else
                     {
                         //下载
-                        Global.HttpDownloadFile(fileUrl, savePath, TimeOut, Headers, StartByte, ExpectByte);
+                        await Global.HttpDownloadFile(fileUrl, savePath, TimeOut, Headers, StartByte, ExpectByte);
                     }
                 }
+
                 if (File.Exists(savePath) && Global.ShouldStop == false) 
                 {
                     FileInfo fi = new FileInfo(savePath);
                     if (Method == "NONE" || method.Contains("NOTSUPPORTED"))
                     {
-                        fi.MoveTo(Path.GetDirectoryName(savePath) + "\\" + Path.GetFileNameWithoutExtension(savePath) + ".ts");
+                        fi.MoveTo(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts"));
                         DownloadManager.DownloadedSize += fi.Length;
                         //Console.WriteLine(Path.GetFileNameWithoutExtension(savePath) + " Completed.");
                     }
@@ -191,7 +198,7 @@ namespace N_m3u8DL_CLI
                         //解密
                         try
                         {
-                            byte[] decryptBuff = null;
+                            byte[]? decryptBuff = null;
                             if(fileUrl.Contains(".51cto.com/")) //使用AES-128-ECB模式解密
                             {
                                 decryptBuff = Decrypter.AES128Decrypt(
@@ -209,7 +216,7 @@ namespace N_m3u8DL_CLI
                                     Decrypter.HexStringToBytes(Iv)
                                     );
                             }
-                            FileStream fs = new FileStream(Path.GetDirectoryName(savePath) + "\\" + Path.GetFileNameWithoutExtension(savePath) + ".ts", FileMode.Create);
+                            FileStream fs = new FileStream(Path.Combine(saveDirectoryPath, Path.GetFileNameWithoutExtension(savePath) + ".ts"), FileMode.Create);
                             fs.Write(decryptBuff, 0, decryptBuff.Length);
                             fs.Close();
                             DownloadManager.DownloadedSize += fi.Length;
@@ -228,9 +235,9 @@ namespace N_m3u8DL_CLI
                     {
                         LOGGER.WriteLineError(strings.SomethingWasWrong);
                         LOGGER.PrintLine(strings.SomethingWasWrong, LOGGER.Error);
-                        return;
+                        return IsDone;
                     }
-                    return;
+                    return IsDone;
                 }
             }
             catch (Exception ex)
@@ -239,14 +246,15 @@ namespace N_m3u8DL_CLI
                 if (ex.Message.Contains("404") || ex.Message.Contains("400"))//(400) 错误的请求,片段过期会提示400错误
                 {
                     IsDone = true;
-                    return;
+                    return IsDone;
                 }
                 else if (IsLive && count++ < Retry) 
                 {
                     Thread.Sleep(2000);//直播一般3-6秒一个片段
-                    Down();
+                    Down().Wait();
                 }
             }
+            return IsDone;
         }
     }
 }

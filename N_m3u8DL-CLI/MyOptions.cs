@@ -6,21 +6,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     internal class MyOptions
     {
         [Value(0, Hidden = true, MetaName = "Input Source", HelpText = "Help_input", ResourceType = typeof(strings))]
-        public string Input { get; set; }
+        public string? Input { get; set; }
 
         [Option("workDir", HelpText = "Help_workDir", ResourceType = typeof(strings))]
-        public string WorkDir { get; set; }
+        public string? WorkDir { get; set; }
 
         [Option("saveName", HelpText = "Help_saveName", ResourceType = typeof(strings))]
         public string SaveName { get; set; } = "";
 
         [Option("baseUrl", HelpText = "Help_baseUrl", ResourceType = typeof(strings))]
-        public string BaseUrl { get; set; }
+        public string? BaseUrl { get; set; }
 
         [Option("headers", HelpText = "Help_headers", ResourceType = typeof(strings))]
         public string Headers { get; set; } = "";
@@ -38,22 +38,22 @@ namespace N_m3u8DL_CLI
         public uint TimeOut { get; set; }
 
         [Option("muxSetJson", HelpText = "Help_muxSetJson", ResourceType = typeof(strings))]
-        public string MuxSetJson { get; set; }
+        public string? MuxSetJson { get; set; }
 
         [Option("useKeyFile", HelpText = "Help_useKeyFile", ResourceType = typeof(strings))]
-        public string UseKeyFile { get; set; }
+        public string? UseKeyFile { get; set; }
 
         [Option("useKeyBase64", HelpText = "Help_useKeyBase64", ResourceType = typeof(strings))]
-        public string UseKeyBase64 { get; set; }
+        public string? UseKeyBase64 { get; set; }
 
         [Option("useKeyIV", HelpText = "Help_useKeyIV", ResourceType = typeof(strings))]
-        public string UseKeyIV { get; set; }
+        public string? UseKeyIV { get; set; }
 
         [Option("downloadRange", HelpText = "Help_downloadRange", ResourceType = typeof(strings))]
-        public string DownloadRange { get; set; }
+        public string? DownloadRange { get; set; }
 
         [Option("liveRecDur", HelpText = "Help_liveRecDur", ResourceType = typeof(strings))]
-        public string LiveRecDur { get; set; }
+        public string? LiveRecDur { get; set; }
 
         [Option("stopSpeed", HelpText = "Help_stopSpeed", ResourceType = typeof(strings))]
         public long StopSpeed { get; set; } = 0L;
@@ -62,7 +62,7 @@ namespace N_m3u8DL_CLI
         public long MaxSpeed { get; set; } = 0L;
 
         [Option("proxyAddress", HelpText = "Help_proxyAddress", ResourceType = typeof(strings))]
-        public string ProxyAddress { get; set; }
+        public string? ProxyAddress { get; set; }
 
         [Option("enableDelAfterDone", HelpText = "Help_enableDelAfterDone", ResourceType = typeof(strings))]
         public bool EnableDelAfterDone { get; set; }

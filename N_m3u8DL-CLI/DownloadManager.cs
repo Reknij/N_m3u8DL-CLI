@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class DownloadManager
     {
@@ -22,7 +22,7 @@ namespace N_m3u8DL_CLI
         string externalAudioUrl = "";
         bool externalSub = false;  //额外的字幕
         string externalSubUrl = "";
-        string fflogName = "_ffreport.log";
+        string fflogName = string.Empty;
         public static bool BinaryMerge = false;
 
         public int Threads { get; set; } = 1;
@@ -97,24 +97,24 @@ namespace N_m3u8DL_CLI
 
             string jsonContent = File.ReadAllText(jsonFile);
             JObject initJson = JObject.Parse(jsonContent);
-            JArray parts = JArray.Parse(initJson["m3u8Info"]["segments"].ToString()); //大分组
-            string segCount = initJson["m3u8Info"]["count"].ToString();
-            string oriCount = initJson["m3u8Info"]["originalCount"].ToString(); //原始分片数量
-            string isVOD = initJson["m3u8Info"]["vod"].ToString();
+            JArray parts = JArray.Parse(initJson["m3u8Info"]?["segments"]?.ToString() ?? throw new NullReferenceException("Get json target data failed.")); //大分组
+            string segCount = initJson["m3u8Info"]?["count"]?.ToString() ?? throw new NullReferenceException("Get json target data failed.");
+            string oriCount = initJson["m3u8Info"]?["originalCount"]?.ToString() ?? throw new NullReferenceException("Get json target data failed."); //原始分片数量
+            string isVOD = initJson["m3u8Info"]?["vod"]?.ToString() ?? throw new NullReferenceException("Get json target data failed.");
             try
             {
-                if (initJson["m3u8Info"]["audio"].ToString() != "")
+                if (initJson["m3u8Info"]?["audio"]?.ToString() != "")
                     externalAudio = true;
-                externalAudioUrl = initJson["m3u8Info"]["audio"].ToString();
+                externalAudioUrl = initJson["m3u8Info"]?["audio"]?.ToString() ?? throw new NullReferenceException("Get json target data failed.");
                 LOGGER.WriteLine(strings.hasExternalAudioTrack);
                 LOGGER.PrintLine(strings.hasExternalAudioTrack, LOGGER.Warning);
             }
             catch (Exception) {}
             try
             {
-                if (initJson["m3u8Info"]["sub"].ToString() != "")
+                if (initJson["m3u8Info"]?["sub"]?.ToString() != "")
                     externalSub = true;
-                externalSubUrl = initJson["m3u8Info"]["sub"].ToString();
+                externalSubUrl = initJson["m3u8Info"]?["sub"]?.ToString() ?? throw new NullReferenceException("Get json target data failed.");
                 LOGGER.WriteLine(strings.hasExternalSubtitleTrack);
                 LOGGER.PrintLine(strings.hasExternalSubtitleTrack, LOGGER.Warning);
             }
@@ -154,7 +154,7 @@ namespace N_m3u8DL_CLI
                 LOGGER.PrintLine(strings.downloadingMapFile);
                 Downloader sd = new Downloader();
                 sd.TimeOut = TimeOut;
-                sd.FileUrl = initJson["m3u8Info"]["extMAP"].Value<string>();
+                sd.FileUrl = initJson["m3u8Info"]?["extMAP"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                 sd.Headers = Headers;
                 sd.Method = "NONE";
                 if (sd.FileUrl.Contains("|"))  //有range
@@ -164,13 +164,13 @@ namespace N_m3u8DL_CLI
                     sd.StartByte = Convert.ToUInt32(tmp[1].Split('@')[1]);
                     sd.ExpectByte = Convert.ToUInt32(tmp[1].Split('@')[0]);
                 }
-                sd.SavePath = DownDir + "\\!MAP.tsdownloading";
+                sd.SavePath = Path.Combine(DownDir, "!MAP.tsdownloading");
                 if (File.Exists(sd.SavePath))
                     File.Delete(sd.SavePath);
-                if (File.Exists(DownDir + "\\Part_0\\!MAP.ts"))
-                    File.Delete(DownDir + "\\Part_0\\!MAP.ts");
-                sd.Down();  //开始下载
-                if (!File.Exists(DownDir + "\\!MAP.ts")) //检测是否成功下载
+                if (File.Exists(Path.Combine(DownDir, "Part_0", "!MAP.ts")))
+                    File.Delete(Path.Combine(DownDir, "Part_0", "!MAP.ts"));
+                sd.Down().Wait();  //开始下载
+                if (!File.Exists(Path.Combine(DownDir, "!MAP.ts"))) //检测是否成功下载
                 {
                     Thread.Sleep(1000);
                     goto downloadMap;
@@ -179,47 +179,48 @@ namespace N_m3u8DL_CLI
 
             //首先下载第一个分片
             JToken firstSeg = JArray.Parse(parts[0].ToString())[0];
-            if (!File.Exists(DownDir + "\\Part_" + 0.ToString(partsPadZero) + "\\" + firstSeg["index"].Value<int>().ToString(segsPadZero) + ".ts"))
+            if (!File.Exists(Path.Combine(DownDir, "Part_" + 0.ToString(partsPadZero), firstSeg["index"]?.Value<int>().ToString(segsPadZero) + ".ts")))
             {
                 try
                 {
                     Downloader sd = new Downloader();
                     sd.TimeOut = TimeOut;
-                    sd.SegDur = firstSeg["duration"].Value<double>();
+                    sd.SegDur = firstSeg["duration"]?.Value<double>() ?? throw new NullReferenceException("Get json target data failed.");
                     if (sd.SegDur < 0) sd.SegDur = 0; //防止负数
-                    sd.FileUrl = firstSeg["segUri"].Value<string>();
+                    sd.FileUrl = firstSeg["segUri"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                     //VTT字幕
                     if (isVTT == false && (sd.FileUrl.Trim('\"').EndsWith(".vtt") || sd.FileUrl.Trim('\"').EndsWith(".webvtt")))
                         isVTT = true;
-                    sd.Method = firstSeg["method"].Value<string>();
+                    sd.Method = firstSeg["method"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                     if (sd.Method != "NONE")
                     {
-                        sd.Key = firstSeg["key"].Value<string>();
-                        sd.Iv = firstSeg["iv"].Value<string>();
+                        sd.Key = firstSeg["key"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                        sd.Iv = firstSeg["iv"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                     }
                     if (firstSeg["expectByte"] != null)
-                        sd.ExpectByte = firstSeg["expectByte"].Value<long>();
+                        sd.ExpectByte = firstSeg["expectByte"]?.Value<long>() ?? throw new NullReferenceException("Get json target data failed.");
                     if (firstSeg["startByte"] != null)
-                        sd.StartByte = firstSeg["startByte"].Value<long>();
+                        sd.StartByte = firstSeg["startByte"]?.Value<long>() ?? throw new NullReferenceException("Get json target data failed.");
                     sd.Headers = Headers;
-                    sd.SavePath = DownDir + "\\Part_" + 0.ToString(partsPadZero) + "\\" + firstSeg["index"].Value<int>().ToString(segsPadZero) + ".tsdownloading";
+                    sd.SavePath = Path.Combine(DownDir,"Part_" + 0.ToString(partsPadZero), firstSeg["index"]?.Value<int>().ToString(segsPadZero) + ".tsdownloading");
                     if (File.Exists(sd.SavePath))
                         File.Delete(sd.SavePath);
                     LOGGER.PrintLine(strings.downloadingFirstSegement);
                     if (!Global.ShouldStop)
-                        sd.Down();  //开始下载
+                        sd.Down().Wait();  //开始下载
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    //LOG.WriteLineError(e.ToString());
+                    //Console.WriteLine(ex.ToString());
                 }
             }
 
             if (Global.HadReadInfo == false)
             {
-                string href = DownDir + "\\Part_" + 0.ToString(partsPadZero) + "\\" + firstSeg["index"].Value<int>().ToString(segsPadZero) + ".ts";
-                if (File.Exists(DownDir + "\\!MAP.ts"))
-                    href = DownDir + "\\!MAP.ts";
+                string href = Path.Combine(DownDir, "Part_" + 0.ToString(partsPadZero), firstSeg["index"]?.Value<int>().ToString(segsPadZero) + ".ts");
+                if (File.Exists(Path.Combine(DownDir, "!MAP.ts")))
+                    href = Path.Combine(DownDir, "!MAP.ts");
+                if (!File.Exists(href))
                 Global.GzipHandler(href);
                 bool flag = false;
                 foreach (string ss in (string[])Global.GetVideoInfo(href).ToArray(typeof(string)))
@@ -269,29 +270,29 @@ namespace N_m3u8DL_CLI
                         else
                         {
                             sd.TimeOut = TimeOut;
-                            sd.SegDur = info["duration"].Value<double>();
+                            sd.SegDur = info["duration"]?.Value<double>() ?? throw new NullReferenceException("Get json target data failed.");
                             if (sd.SegDur < 0) sd.SegDur = 0; //防止负数
-                                sd.FileUrl = info["segUri"].Value<string>();
+                                sd.FileUrl = info["segUri"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                             //VTT字幕
                             if (isVTT == false && (sd.FileUrl.Trim('\"').EndsWith(".vtt") || sd.FileUrl.Trim('\"').EndsWith(".webvtt")))
                                 isVTT = true;
-                            sd.Method = info["method"].Value<string>();
+                            sd.Method = info["method"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                             if (sd.Method != "NONE")
                             {
-                                sd.Key = info["key"].Value<string>();
-                                sd.Iv = info["iv"].Value<string>();
+                                sd.Key = info["key"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                sd.Iv = info["iv"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                             }
                             if (firstSeg["expectByte"] != null)
-                                sd.ExpectByte = info["expectByte"].Value<long>();
+                                sd.ExpectByte = info["expectByte"]?.Value<long>() ?? throw new NullReferenceException("Get json target data failed.");
                             if (firstSeg["startByte"] != null)
-                                sd.StartByte = info["startByte"].Value<long>();
+                                sd.StartByte = info["startByte"]?.Value<long>() ?? throw new NullReferenceException("Get json target data failed.");
                             sd.Headers = Headers;
-                            sd.SavePath = DownDir + "\\Part_" + info["part"].Value<int>().ToString(partsPadZero) + "\\" + info["index"].Value<int>().ToString(segsPadZero) + ".tsdownloading";
+                            sd.SavePath = Path.Combine(DownDir, "Part_" + info["part"]?.Value<int>().ToString(partsPadZero), info["index"]?.Value<int>().ToString(segsPadZero) + ".tsdownloading");
                             if (File.Exists(sd.SavePath))
                                 File.Delete(sd.SavePath);
                             if (!Global.ShouldStop)
-                                sd.Down();  //开始下载
-                            }
+                                sd.Down().Wait();  //开始下载
+                        }
                         return sd;
                     },
                     (sd) => { });
@@ -331,7 +332,7 @@ namespace N_m3u8DL_CLI
 
             for (int i = 0; i < PartsCount; i++) 
             {
-                tsCount += Global.GetFileCount(DownDir + "\\Part_" + i.ToString(partsPadZero), ".ts");
+                tsCount += Global.GetFileCount(Path.Combine(DownDir, "Part_" + i.ToString(partsPadZero)), ".ts");
             }
 
         ll:
@@ -351,10 +352,11 @@ namespace N_m3u8DL_CLI
             else  //开始合并
             {
                 LOGGER.PrintLine(strings.downloadComplete + (DisableIntegrityCheck ? "(" + strings.disableIntegrityCheck + ")" : ""));
+                string DownDirDirectory = Path.GetDirectoryName(DownDir) ?? throw new NullReferenceException("Get directory path failed");
+
                 if (NoMerge == false)
                 {
-                    string exePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-                    string driverName = exePath.Remove(exePath.IndexOf(':'));
+                    //string driverName = exePath.Remove(exePath.IndexOf(':'));
                     Console.Title = "Done.";
                     LOGGER.WriteLine(strings.startMerging);
                     LOGGER.PrintLine(strings.startMerging, LOGGER.Warning);
@@ -362,7 +364,7 @@ namespace N_m3u8DL_CLI
                     if (isVTT == true)
                     {
                         MuxFormat = "vtt";
-                        Global.ReAdjustVtt(Global.GetFiles(DownDir + "\\Part_0", ".ts"));
+                        Global.ReAdjustVtt(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"));
                     }
                     //只有一个Part直接用ffmpeg合并
                     if (PartsCount == 1)
@@ -371,34 +373,34 @@ namespace N_m3u8DL_CLI
                          * FFREPORT=file=C\:/Users/nilao/Desktop/新建文件夹/3.log:level=32
                          * Test with Powershell, its C:/Users/nilao/Desktop/新建文件夹/3.log
                          */
-                        FFmpeg.OutPutPath = Path.Combine(Directory.GetParent(DownDir).FullName, DownName);
-                        FFmpeg.ReportFile = driverName + "\\:" + exePath.Remove(0, exePath.IndexOf(':') + 1).Replace("\\", "/") + "/Logs/" + Path.GetFileNameWithoutExtension(LOGGER.LOGFILE) + fflogName;
-                        if (File.Exists(DownDir + "\\!MAP.ts"))
-                            File.Move(DownDir + "\\!MAP.ts", DownDir + "\\Part_0\\!MAP.ts");
+                        FFmpeg.OutPutPath = Path.Combine(Directory.GetParent(DownDir)?.FullName ?? throw new NullReferenceException("Get parent directory failed"), DownName);
+                        //FFmpeg.ReportFile = driverName + "\\:" + exePath.Remove(0, exePath.IndexOf(':') + 1).Replace("\\", "/") + "/Logs/" + Path.GetFileNameWithoutExtension(LOGGER.LOGFILE) + fflogName;
+                        if (File.Exists(Path.Combine(DownDir, "!MAP.ts")))
+                            File.Move(Path.Combine(DownDir, "!MAP.ts"), Path.Combine(DownDir, "Part_0", "!MAP.ts"));
 
                         if (BinaryMerge)
                         {
                             LOGGER.PrintLine(strings.binaryMergingPleaseWait);
                             MuxFormat = "ts";
                             //有MAP文件，一般为mp4，采取默认动作
-                            if(File.Exists(DownDir + "\\Part_0\\!MAP.ts"))
+                            if(File.Exists(Path.Combine(DownDir, "Part_0", "!MAP.ts")))
                                 MuxFormat = "mp4";
                             if (isVTT)
                                 MuxFormat = "vtt";
 
                             if (Global.AUDIO_TYPE != "")
                                 MuxFormat = Global.AUDIO_TYPE;
-                            Global.CombineMultipleFilesIntoSingleFile(Global.GetFiles(DownDir + "\\Part_0", ".ts"), FFmpeg.OutPutPath + $".{MuxFormat}");
+                            Global.CombineMultipleFilesIntoSingleFile(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"), FFmpeg.OutPutPath + $".{MuxFormat}");
                         }
                         else
                         {
                             if (Global.VIDEO_TYPE != "DV") //不是杜比视界
                             {
                                 //检测是否为MPEG-TS封装，不是的话就转换为TS封装
-                                foreach (string s in Global.GetFiles(DownDir + "\\Part_0", ".ts"))
+                                foreach (string s in Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"))
                                 {
                                     //跳过有MAP的情况
-                                    if (!isVTT && !File.Exists(DownDir + "\\Part_0\\!MAP.ts") && !FFmpeg.CheckMPEGTS(s))
+                                    if (!isVTT && !File.Exists(Path.Combine(DownDir, "Part_0", "!MAP.ts")) && !FFmpeg.CheckMPEGTS(s))
                                     {
                                         //转换
                                         LOGGER.PrintLine(strings.remuxToMPEGTS + Path.GetFileName(s));
@@ -412,7 +414,7 @@ namespace N_m3u8DL_CLI
                                 {
                                     LOGGER.WriteLine(strings.partialMergingPleaseWait);
                                     LOGGER.PrintLine(strings.partialMergingPleaseWait, LOGGER.Warning);
-                                    Global.PartialCombineMultipleFiles(Global.GetFiles(DownDir + "\\Part_0", ".ts"));
+                                    Global.PartialCombineMultipleFiles(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"));
                                 }
 
                                 if (Global.AUDIO_TYPE != "")
@@ -420,20 +422,20 @@ namespace N_m3u8DL_CLI
 
                                 LOGGER.PrintLine(strings.ffmpegMergingPleaseWait);
                                 if (!File.Exists(MuxSetJson))
-                                    FFmpeg.Merge(Global.GetFiles(DownDir + "\\Part_0", ".ts"), MuxFormat, MuxFastStart);
+                                    FFmpeg.Merge(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"), MuxFormat, MuxFastStart);
                                 else
                                 {
                                     JObject json = JObject.Parse(File.ReadAllText(MuxSetJson, Encoding.UTF8));
-                                    string muxFormat = json["muxFormat"].Value<string>();
-                                    bool fastStart = Convert.ToBoolean(json["fastStart"].Value<string>());
-                                    string poster = json["poster"].Value<string>();
-                                    string audioName = json["audioName"].Value<string>();
-                                    string title = json["title"].Value<string>();
-                                    string copyright = json["copyright"].Value<string>();
-                                    string comment = json["comment"].Value<string>();
+                                    string muxFormat = json["muxFormat"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                    bool fastStart = Convert.ToBoolean(json["fastStart"]?.Value<string>());
+                                    string poster = json["poster"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                    string audioName = json["audioName"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                    string title = json["title"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                    string copyright = json["copyright"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                    string comment = json["comment"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                                     string encodingTool = "";
-                                    try { encodingTool = json["encodingTool"].Value<string>(); } catch (Exception) {; }
-                                    FFmpeg.Merge(Global.GetFiles(DownDir + "\\Part_0", ".ts"), muxFormat, fastStart, poster, audioName, title, copyright, comment, encodingTool);
+                                    try { encodingTool = json["encodingTool"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed."); } catch (Exception) {; }
+                                    FFmpeg.Merge(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"), muxFormat, fastStart, poster, audioName, title, copyright, comment, encodingTool);
                                 }
                                 //Global.CombineMultipleFilesIntoSingleFile(Global.GetFiles(DownDir + "\\Part_0", ".ts"), FFmpeg.OutPutPath + ".ts");
 
@@ -442,7 +444,7 @@ namespace N_m3u8DL_CLI
                             else
                             {
                                 LOGGER.PrintLine(strings.dolbyVisionContentMerging);
-                                Global.CombineMultipleFilesIntoSingleFile(Global.GetFiles(DownDir + "\\Part_0", ".ts"), FFmpeg.OutPutPath + ".mp4");
+                                Global.CombineMultipleFilesIntoSingleFile(Global.GetFiles(Path.Combine(DownDir, "Part_0"), ".ts"), FFmpeg.OutPutPath + ".mp4");
                             }
                         }
 
@@ -471,7 +473,7 @@ namespace N_m3u8DL_CLI
                             parser.BaseUrl = "";
                             parser.M3u8Url = externalAudioUrl;
                             parser.DownName = DownName + "(Audio)";
-                            parser.DownDir = Path.Combine(Path.GetDirectoryName(DownDir), parser.DownName);
+                            parser.DownDir = Path.Combine(DownDirDirectory, parser.DownName);
                             LOGGER.WriteLine(strings.startParsing + externalAudioUrl);
                             LOGGER.WriteLine(strings.downloadingExternalAudioTrack);
                             DownName = DownName + "(Audio)";
@@ -495,7 +497,7 @@ namespace N_m3u8DL_CLI
                             parser.BaseUrl = "";
                             parser.M3u8Url = externalSubUrl;
                             parser.DownName = DownName.Replace("(Audio)", "") + "(Subtitle)";
-                            parser.DownDir = Path.Combine(Path.GetDirectoryName(DownDir), parser.DownName);
+                            parser.DownDir = Path.Combine(DownDirDirectory, parser.DownName);
                             LOGGER.WriteLine(strings.startParsing + externalSubUrl);
                             LOGGER.WriteLine(strings.downloadingExternalSubtitleTrack);
                             DownName = parser.DownName;
@@ -513,20 +515,20 @@ namespace N_m3u8DL_CLI
                         return;
                     }
 
-                    FFmpeg.OutPutPath = Path.Combine(Directory.GetParent(DownDir).FullName, DownName);
-                    FFmpeg.ReportFile = driverName + "\\:" + exePath.Remove(0, exePath.IndexOf(':') + 1).Replace("\\", "/") + "/Logs/" + Path.GetFileNameWithoutExtension(LOGGER.LOGFILE) + fflogName;
+                    FFmpeg.OutPutPath = Path.Combine(Directory.GetParent(DownDir)?.FullName ?? throw new NullReferenceException("Get parent directory failed"), DownName);
+                    //FFmpeg.ReportFile = driverName + "\\:" + exePath.Remove(0, exePath.IndexOf(':') + 1).Replace("\\", "/") + "/Logs/" + Path.GetFileNameWithoutExtension(LOGGER.LOGFILE) + fflogName;
 
                     //合并分段
                     LOGGER.PrintLine(strings.startMerging);
                     for (int i = 0; i < PartsCount; i++)
                     {
-                        string outputFilePath = DownDir + "\\Part_" + i.ToString(partsPadZero) + ".ts";
+                        string outputFilePath = Path.Combine(DownDir, "Part_" + i.ToString(partsPadZero) + ".ts");
                         Global.CombineMultipleFilesIntoSingleFile(
-                           Global.GetFiles(DownDir + "\\Part_" + i.ToString(partsPadZero), ".ts"),
+                           Global.GetFiles(Path.Combine(DownDir, "Part_" + i.ToString(partsPadZero)), ".ts"),
                            outputFilePath);
                         try
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(DownDir + "\\Part_" + i.ToString(partsPadZero));
+                            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(DownDir, "Part_" + i.ToString(partsPadZero)));
                             directoryInfo.Delete(true);
                         }
                         catch (Exception) { }
@@ -538,7 +540,7 @@ namespace N_m3u8DL_CLI
                         LOGGER.PrintLine(strings.binaryMergingPleaseWait);
                         MuxFormat = "ts";
                         //有MAP文件，一般为mp4，采取默认动作
-                        if (File.Exists(DownDir + "\\!MAP.ts")) 
+                        if (File.Exists(Path.Combine(DownDir, "!MAP.ts"))) 
                             MuxFormat = "mp4";
                         if (isVTT)
                             MuxFormat = "vtt";
@@ -552,7 +554,7 @@ namespace N_m3u8DL_CLI
                             foreach (string s in Global.GetFiles(DownDir, ".ts"))
                             {
                                 //跳过有MAP的情况
-                                if (!isVTT && !File.Exists(DownDir + "\\!MAP.ts") && !FFmpeg.CheckMPEGTS(s))
+                                if (!isVTT && !File.Exists(Path.Combine(DownDir, "!MAP.ts")) && !FFmpeg.CheckMPEGTS(s))
                                 {
                                     //转换
                                     LOGGER.PrintLine(strings.remuxToMPEGTS + Path.GetFileName(s));
@@ -570,15 +572,15 @@ namespace N_m3u8DL_CLI
                             else
                             {
                                 JObject json = JObject.Parse(File.ReadAllText(MuxSetJson, Encoding.UTF8));
-                                string muxFormat = json["muxFormat"].Value<string>();
-                                bool fastStart = Convert.ToBoolean(json["fastStart"].Value<string>());
-                                string poster = json["poster"].Value<string>();
-                                string audioName = json["audioName"].Value<string>();
-                                string title = json["title"].Value<string>();
-                                string copyright = json["copyright"].Value<string>();
-                                string comment = json["comment"].Value<string>();
+                                string muxFormat = json["muxFormat"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                bool fastStart = Convert.ToBoolean(json["fastStart"]?.Value<string>());
+                                string poster = json["poster"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                string audioName = json["audioName"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                string title = json["title"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                string copyright = json["copyright"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
+                                string comment = json["comment"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed.");
                                 string encodingTool = "";
-                                try { encodingTool = json["encodingTool"].Value<string>(); } catch (Exception) {; }
+                                try { encodingTool = json["encodingTool"]?.Value<string>() ?? throw new NullReferenceException("Get json target data failed."); } catch (Exception) {; }
                                 FFmpeg.Merge(Global.GetFiles(DownDir, ".ts"), muxFormat, fastStart, poster, audioName, title, copyright, comment, encodingTool);
                             }
                         }
@@ -614,7 +616,7 @@ namespace N_m3u8DL_CLI
                         parser.BaseUrl = "";
                         parser.M3u8Url = externalAudioUrl;
                         parser.DownName = DownName + "(Audio)";
-                        parser.DownDir = Path.Combine(Path.GetDirectoryName(DownDir), parser.DownName);
+                        parser.DownDir = Path.Combine(DownDirDirectory, parser.DownName);
                         LOGGER.WriteLine(strings.startParsing + externalAudioUrl);
                         LOGGER.WriteLine(strings.downloadingExternalAudioTrack);
                         DownName = parser.DownName;
@@ -638,7 +640,7 @@ namespace N_m3u8DL_CLI
                         parser.BaseUrl = "";
                         parser.M3u8Url = externalSubUrl;
                         parser.DownName = DownName.Replace("(Audio)", "") + "(Subtitle)";
-                        parser.DownDir = Path.Combine(Path.GetDirectoryName(DownDir), parser.DownName);
+                        parser.DownDir = Path.Combine(DownDirDirectory, parser.DownName);
                         LOGGER.WriteLine(strings.startParsing + externalSubUrl);
                         LOGGER.WriteLine(strings.downloadingExternalSubtitleTrack);
                         DownName = parser.DownName;

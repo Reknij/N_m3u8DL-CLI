@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="stringscore.Designer.cs">
+    <Compile Update="strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>stringscore.resx</DependentUpon>
+      <DependentUpon>strings.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -33,9 +33,9 @@
     <EmbeddedResource Update="strings.en-US.resx">
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="stringscore.resx">
+    <EmbeddedResource Update="strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>stringscore.Designer.cs</LastGenOutput>
+      <LastGenOutput>strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

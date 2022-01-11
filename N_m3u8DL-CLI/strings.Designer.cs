@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace N_m3u8DL_CLI {
+namespace N_m3u8DL_CLI_core {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace N_m3u8DL_CLI {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class strings {
+    internal class strings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace N_m3u8DL_CLI {
         ///   返回此类使用的缓存的 ResourceManager 实例。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("N_m3u8DL_CLI.strings", typeof(strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("N_m3u8DL_CLI_core.strings", typeof(strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace N_m3u8DL_CLI {
         ///   使用此强类型资源类的所有资源查找执行重写。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 二进制合并...请耐心等待 的本地化字符串。
         /// </summary>
-        public static string binaryMergingPleaseWait {
+        internal static string binaryMergingPleaseWait {
             get {
                 return ResourceManager.GetString("binaryMergingPleaseWait", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 正在判断尾分片是否有效... 的本地化字符串。
         /// </summary>
-        public static string checkingLast {
+        internal static string checkingLast {
             get {
                 return ResourceManager.GetString("checkingLast", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 已关闭完整性检查 的本地化字符串。
         /// </summary>
-        public static string disableIntegrityCheck {
+        internal static string disableIntegrityCheck {
             get {
                 return ResourceManager.GetString("disableIntegrityCheck", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 杜比视界内容，使用二进制合并...请耐心等待 的本地化字符串。
         /// </summary>
-        public static string dolbyVisionContentMerging {
+        internal static string dolbyVisionContentMerging {
             get {
                 return ResourceManager.GetString("dolbyVisionContentMerging", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 已下载完毕 的本地化字符串。
         /// </summary>
-        public static string downloadComplete {
+        internal static string downloadComplete {
             get {
                 return ResourceManager.GetString("downloadComplete", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 完成数量  的本地化字符串。
         /// </summary>
-        public static string downloadedCount {
+        internal static string downloadedCount {
             get {
                 return ResourceManager.GetString("downloadedCount", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 下载失败, 程序退出 的本地化字符串。
         /// </summary>
-        public static string downloadFailed {
+        internal static string downloadFailed {
             get {
                 return ResourceManager.GetString("downloadFailed", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始下载外挂音频... 的本地化字符串。
         /// </summary>
-        public static string downloadingExternalAudioTrack {
+        internal static string downloadingExternalAudioTrack {
             get {
                 return ResourceManager.GetString("downloadingExternalAudioTrack", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始下载外挂字幕... 的本地化字符串。
         /// </summary>
-        public static string downloadingExternalSubtitleTrack {
+        internal static string downloadingExternalSubtitleTrack {
             get {
                 return ResourceManager.GetString("downloadingExternalSubtitleTrack", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 下载首分片... 的本地化字符串。
         /// </summary>
-        public static string downloadingFirstSegement {
+        internal static string downloadingFirstSegement {
             get {
                 return ResourceManager.GetString("downloadingFirstSegement", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 获取m3u8内容 的本地化字符串。
         /// </summary>
-        public static string downloadingM3u8 {
+        internal static string downloadingM3u8 {
             get {
                 return ResourceManager.GetString("downloadingM3u8", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 获取m3u8 key... 的本地化字符串。
         /// </summary>
-        public static string downloadingM3u8Key {
+        internal static string downloadingM3u8Key {
             get {
                 return ResourceManager.GetString("downloadingM3u8Key", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 下载MAP文件... 的本地化字符串。
         /// </summary>
-        public static string downloadingMapFile {
+        internal static string downloadingMapFile {
             get {
                 return ResourceManager.GetString("downloadingMapFile", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 强制退出: Ctrl+C 的本地化字符串。
         /// </summary>
-        public static string ExitedCtrlC {
+        internal static string ExitedCtrlC {
             get {
                 return ResourceManager.GetString("ExitedCtrlC", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 强制退出: 强制 的本地化字符串。
         /// </summary>
-        public static string ExitedForce {
+        internal static string ExitedForce {
             get {
                 return ResourceManager.GetString("ExitedForce", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 结果输出至 [ffreport.log] 的本地化字符串。
         /// </summary>
-        public static string ffmpegDone {
+        internal static string ffmpegDone {
             get {
                 return ResourceManager.GetString("ffmpegDone", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 在PATH和程序路径下找不到 ffmpeg 的本地化字符串。
         /// </summary>
-        public static string ffmpegLost {
+        internal static string ffmpegLost {
             get {
                 return ResourceManager.GetString("ffmpegLost", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 使用ffmpeg合并...请耐心等待 的本地化字符串。
         /// </summary>
-        public static string ffmpegMergingPleaseWait {
+        internal static string ffmpegMergingPleaseWait {
             get {
                 return ResourceManager.GetString("ffmpegMergingPleaseWait", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 请下载ffmpeg.exe并把他放到程序同目录. 的本地化字符串。
         /// </summary>
-        public static string ffmpegTip {
+        internal static string ffmpegTip {
             get {
                 return ResourceManager.GetString("ffmpegTip", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 文件时长： 的本地化字符串。
         /// </summary>
-        public static string fileDuration {
+        internal static string fileDuration {
             get {
                 return ResourceManager.GetString("fileDuration", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 文件名称： 的本地化字符串。
         /// </summary>
-        public static string fileName {
+        internal static string fileName {
             get {
                 return ResourceManager.GetString("fileName", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 识别到外挂音频轨道 的本地化字符串。
         /// </summary>
-        public static string hasExternalAudioTrack {
+        internal static string hasExternalAudioTrack {
             get {
                 return ResourceManager.GetString("hasExternalAudioTrack", resourceCulture);
             }
@@ -261,7 +261,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 识别到外挂字幕轨道 的本地化字符串。
         /// </summary>
-        public static string hasExternalSubtitleTrack {
+        internal static string hasExternalSubtitleTrack {
             get {
                 return ResourceManager.GetString("hasExternalSubtitleTrack", resourceCulture);
             }
@@ -270,7 +270,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定Baseurl 的本地化字符串。
         /// </summary>
-        public static string Help_baseUrl {
+        internal static string Help_baseUrl {
             get {
                 return ResourceManager.GetString("Help_baseUrl", resourceCulture);
             }
@@ -279,7 +279,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 关闭混流中的日期写入 的本地化字符串。
         /// </summary>
-        public static string Help_disableDateInfo {
+        internal static string Help_disableDateInfo {
             get {
                 return ResourceManager.GetString("Help_disableDateInfo", resourceCulture);
             }
@@ -288,7 +288,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 不检测分片数量是否完整 的本地化字符串。
         /// </summary>
-        public static string Help_disableIntegrityCheck {
+        internal static string Help_disableIntegrityCheck {
             get {
                 return ResourceManager.GetString("Help_disableIntegrityCheck", resourceCulture);
             }
@@ -297,7 +297,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 仅下载视频的一部分分片或长度 的本地化字符串。
         /// </summary>
-        public static string Help_downloadRange {
+        internal static string Help_downloadRange {
             get {
                 return ResourceManager.GetString("Help_downloadRange", resourceCulture);
             }
@@ -306,7 +306,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 合并时仅封装音频轨道 的本地化字符串。
         /// </summary>
-        public static string Help_enableAudioOnly {
+        internal static string Help_enableAudioOnly {
             get {
                 return ResourceManager.GetString("Help_enableAudioOnly", resourceCulture);
             }
@@ -315,7 +315,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开启二进制合并分片 的本地化字符串。
         /// </summary>
-        public static string Help_enableBinaryMerge {
+        internal static string Help_enableBinaryMerge {
             get {
                 return ResourceManager.GetString("Help_enableBinaryMerge", resourceCulture);
             }
@@ -324,7 +324,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开启下载后删除临时文件夹的功能 的本地化字符串。
         /// </summary>
-        public static string Help_enableDelAfterDone {
+        internal static string Help_enableDelAfterDone {
             get {
                 return ResourceManager.GetString("Help_enableDelAfterDone", resourceCulture);
             }
@@ -333,7 +333,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开启混流mp4的FastStart特性 的本地化字符串。
         /// </summary>
-        public static string Help_enableMuxFastStart {
+        internal static string Help_enableMuxFastStart {
             get {
                 return ResourceManager.GetString("Help_enableMuxFastStart", resourceCulture);
             }
@@ -342,7 +342,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开启仅解析模式(程序只进行到meta.json) 的本地化字符串。
         /// </summary>
-        public static string Help_enableParseOnly {
+        internal static string Help_enableParseOnly {
             get {
                 return ResourceManager.GetString("Help_enableParseOnly", resourceCulture);
             }
@@ -351,7 +351,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定请求头，格式 key:value 使用|分割不同的key&amp;value 的本地化字符串。
         /// </summary>
-        public static string Help_headers {
+        internal static string Help_headers {
             get {
                 return ResourceManager.GetString("Help_headers", resourceCulture);
             }
@@ -360,7 +360,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 链接或文件 的本地化字符串。
         /// </summary>
-        public static string Help_input {
+        internal static string Help_input {
             get {
                 return ResourceManager.GetString("Help_input", resourceCulture);
             }
@@ -369,7 +369,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 直播录制时，达到此长度自动退出软件(HH:MM:SS) 的本地化字符串。
         /// </summary>
-        public static string Help_liveRecDur {
+        internal static string Help_liveRecDur {
             get {
                 return ResourceManager.GetString("Help_liveRecDur", resourceCulture);
             }
@@ -378,7 +378,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设置下载速度上限(单位为KB/s) 的本地化字符串。
         /// </summary>
-        public static string Help_maxSpeed {
+        internal static string Help_maxSpeed {
             get {
                 return ResourceManager.GetString("Help_maxSpeed", resourceCulture);
             }
@@ -387,7 +387,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定程序的最大线程数 的本地化字符串。
         /// </summary>
-        public static string Help_maxThreads {
+        internal static string Help_maxThreads {
             get {
                 return ResourceManager.GetString("Help_maxThreads", resourceCulture);
             }
@@ -396,7 +396,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定程序的最小线程数 的本地化字符串。
         /// </summary>
-        public static string Help_minThreads {
+        internal static string Help_minThreads {
             get {
                 return ResourceManager.GetString("Help_minThreads", resourceCulture);
             }
@@ -405,7 +405,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 使用外部json文件定义混流选项 的本地化字符串。
         /// </summary>
-        public static string Help_muxSetJson {
+        internal static string Help_muxSetJson {
             get {
                 return ResourceManager.GetString("Help_muxSetJson", resourceCulture);
             }
@@ -414,7 +414,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 禁用自动合并 的本地化字符串。
         /// </summary>
-        public static string Help_noMerge {
+        internal static string Help_noMerge {
             get {
                 return ResourceManager.GetString("Help_noMerge", resourceCulture);
             }
@@ -423,7 +423,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 不自动使用系统代理 的本地化字符串。
         /// </summary>
-        public static string Help_noProxy {
+        internal static string Help_noProxy {
             get {
                 return ResourceManager.GetString("Help_noProxy", resourceCulture);
             }
@@ -432,7 +432,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设置HTTP/SOCK5代理, 如 http://127.0.0.1:8080 的本地化字符串。
         /// </summary>
-        public static string Help_proxyAddress {
+        internal static string Help_proxyAddress {
             get {
                 return ResourceManager.GetString("Help_proxyAddress", resourceCulture);
             }
@@ -441,7 +441,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定程序的重试次数 的本地化字符串。
         /// </summary>
-        public static string Help_retryCount {
+        internal static string Help_retryCount {
             get {
                 return ResourceManager.GetString("Help_retryCount", resourceCulture);
             }
@@ -450,7 +450,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定存储文件名(不包括后缀) 的本地化字符串。
         /// </summary>
-        public static string Help_saveName {
+        internal static string Help_saveName {
             get {
                 return ResourceManager.GetString("Help_saveName", resourceCulture);
             }
@@ -459,7 +459,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 当速度低于此值时，重试(单位为KB/s) 的本地化字符串。
         /// </summary>
-        public static string Help_stopSpeed {
+        internal static string Help_stopSpeed {
             get {
                 return ResourceManager.GetString("Help_stopSpeed", resourceCulture);
             }
@@ -468,7 +468,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定程序网络请求的超时时间(单位为秒) 的本地化字符串。
         /// </summary>
-        public static string Help_timeOut {
+        internal static string Help_timeOut {
             get {
                 return ResourceManager.GetString("Help_timeOut", resourceCulture);
             }
@@ -477,7 +477,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 使用Base64字符串定义AES-128解密KEY 的本地化字符串。
         /// </summary>
-        public static string Help_useKeyBase64 {
+        internal static string Help_useKeyBase64 {
             get {
                 return ResourceManager.GetString("Help_useKeyBase64", resourceCulture);
             }
@@ -486,7 +486,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 使用外部16字节文件定义AES-128解密KEY 的本地化字符串。
         /// </summary>
-        public static string Help_useKeyFile {
+        internal static string Help_useKeyFile {
             get {
                 return ResourceManager.GetString("Help_useKeyFile", resourceCulture);
             }
@@ -495,7 +495,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 使用HEX字符串定义AES-128解密IV 的本地化字符串。
         /// </summary>
-        public static string Help_useKeyIV {
+        internal static string Help_useKeyIV {
             get {
                 return ResourceManager.GetString("Help_useKeyIV", resourceCulture);
             }
@@ -504,7 +504,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 设定程序工作目录 的本地化字符串。
         /// </summary>
-        public static string Help_workDir {
+        internal static string Help_workDir {
             get {
                 return ResourceManager.GetString("Help_workDir", resourceCulture);
             }
@@ -513,7 +513,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 无效的m3u8 的本地化字符串。
         /// </summary>
-        public static string invalidM3u8 {
+        internal static string invalidM3u8 {
             get {
                 return ResourceManager.GetString("invalidM3u8", resourceCulture);
             }
@@ -522,7 +522,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 地址无效 的本地化字符串。
         /// </summary>
-        public static string InvalidUri {
+        internal static string InvalidUri {
             get {
                 return ResourceManager.GetString("InvalidUri", resourceCulture);
             }
@@ -531,7 +531,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 识别为直播流, 开始录制... 的本地化字符串。
         /// </summary>
-        public static string liveStreamFoundAndRecoding {
+        internal static string liveStreamFoundAndRecoding {
             get {
                 return ResourceManager.GetString("liveStreamFoundAndRecoding", resourceCulture);
             }
@@ -540,7 +540,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 识别到大师列表 的本地化字符串。
         /// </summary>
-        public static string masterListFound {
+        internal static string masterListFound {
             get {
                 return ResourceManager.GetString("masterListFound", resourceCulture);
             }
@@ -549,7 +549,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 检测到更新，版本：{0}! 新版下载成功，请您自行替换 的本地化字符串。
         /// </summary>
-        public static string newerVerisonDownloaded {
+        internal static string newerVerisonDownloaded {
             get {
                 return ResourceManager.GetString("newerVerisonDownloaded", resourceCulture);
             }
@@ -558,7 +558,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 检测到更新，版本：{0}! 新版下载失败，请您自行下载 的本地化字符串。
         /// </summary>
-        public static string newerVerisonDownloadFailed {
+        internal static string newerVerisonDownloadFailed {
             get {
                 return ResourceManager.GetString("newerVerisonDownloadFailed", resourceCulture);
             }
@@ -567,7 +567,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 检测到更新，版本：{0}! 正在尝试自动下载新版 的本地化字符串。
         /// </summary>
-        public static string newerVisionDetected {
+        internal static string newerVisionDetected {
             get {
                 return ResourceManager.GetString("newerVisionDetected", resourceCulture);
             }
@@ -576,7 +576,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 不支持{0}加密方式,将不被处理,且强制开启二进制合并 的本地化字符串。
         /// </summary>
-        public static string notSupportMethod {
+        internal static string notSupportMethod {
             get {
                 return ResourceManager.GetString("notSupportMethod", resourceCulture);
             }
@@ -585,7 +585,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 解析m3u8成功, 程序退出 的本地化字符串。
         /// </summary>
-        public static string parseExit {
+        internal static string parseExit {
             get {
                 return ResourceManager.GetString("parseExit", resourceCulture);
             }
@@ -594,7 +594,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 解析m3u8内容 的本地化字符串。
         /// </summary>
-        public static string parsingM3u8 {
+        internal static string parsingM3u8 {
             get {
                 return ResourceManager.GetString("parsingM3u8", resourceCulture);
             }
@@ -603,7 +603,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 分片大于1800个，执行分部合并中... 的本地化字符串。
         /// </summary>
-        public static string partialMergingPleaseWait {
+        internal static string partialMergingPleaseWait {
             get {
                 return ResourceManager.GetString("partialMergingPleaseWait", resourceCulture);
             }
@@ -612,7 +612,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 按任意键退出. 的本地化字符串。
         /// </summary>
-        public static string pressAnyKeyExit {
+        internal static string pressAnyKeyExit {
             get {
                 return ResourceManager.GetString("pressAnyKeyExit", resourceCulture);
             }
@@ -621,7 +621,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 读取文件信息... 的本地化字符串。
         /// </summary>
-        public static string readingFileInfo {
+        internal static string readingFileInfo {
             get {
                 return ResourceManager.GetString("readingFileInfo", resourceCulture);
             }
@@ -630,7 +630,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 录制已到达限定长度 的本地化字符串。
         /// </summary>
-        public static string recordLimitReached {
+        internal static string recordLimitReached {
             get {
                 return ResourceManager.GetString("recordLimitReached", resourceCulture);
             }
@@ -639,7 +639,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 将文件转换到 MPEG-TS 封装： 的本地化字符串。
         /// </summary>
-        public static string remuxToMPEGTS {
+        internal static string remuxToMPEGTS {
             get {
                 return ResourceManager.GetString("remuxToMPEGTS", resourceCulture);
             }
@@ -648,7 +648,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 重试次数  的本地化字符串。
         /// </summary>
-        public static string retryCount {
+        internal static string retryCount {
             get {
                 return ResourceManager.GetString("retryCount", resourceCulture);
             }
@@ -657,7 +657,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 存储路径： 的本地化字符串。
         /// </summary>
-        public static string savePath {
+        internal static string savePath {
             get {
                 return ResourceManager.GetString("savePath", resourceCulture);
             }
@@ -666,7 +666,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 总分片： 的本地化字符串。
         /// </summary>
-        public static string segCount {
+        internal static string segCount {
             get {
                 return ResourceManager.GetString("segCount", resourceCulture);
             }
@@ -675,7 +675,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 已选择分片： 的本地化字符串。
         /// </summary>
-        public static string selectedCount {
+        internal static string selectedCount {
             get {
                 return ResourceManager.GetString("selectedCount", resourceCulture);
             }
@@ -684,7 +684,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 已自动选择最高清晰度 的本地化字符串。
         /// </summary>
-        public static string selectPlaylist {
+        internal static string selectPlaylist {
             get {
                 return ResourceManager.GetString("selectPlaylist", resourceCulture);
             }
@@ -693,7 +693,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 遇到了某些错误! 的本地化字符串。
         /// </summary>
-        public static string SomethingWasWrong {
+        internal static string SomethingWasWrong {
             get {
                 return ResourceManager.GetString("SomethingWasWrong", resourceCulture);
             }
@@ -702,7 +702,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始下载文件 的本地化字符串。
         /// </summary>
-        public static string startDownloading {
+        internal static string startDownloading {
             get {
                 return ResourceManager.GetString("startDownloading", resourceCulture);
             }
@@ -711,7 +711,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始合并分片... 的本地化字符串。
         /// </summary>
-        public static string startMerging {
+        internal static string startMerging {
             get {
                 return ResourceManager.GetString("startMerging", resourceCulture);
             }
@@ -720,7 +720,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始解析  的本地化字符串。
         /// </summary>
-        public static string startParsing {
+        internal static string startParsing {
             get {
                 return ResourceManager.GetString("startParsing", resourceCulture);
             }
@@ -729,7 +729,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 开始解析MPD内容... 的本地化字符串。
         /// </summary>
-        public static string startParsingMpd {
+        internal static string startParsingMpd {
             get {
                 return ResourceManager.GetString("startParsingMpd", resourceCulture);
             }
@@ -738,7 +738,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 重新解析m3u8... 的本地化字符串。
         /// </summary>
-        public static string startReParsing {
+        internal static string startReParsing {
             get {
                 return ResourceManager.GetString("startReParsing", resourceCulture);
             }
@@ -747,7 +747,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 任务结束 的本地化字符串。
         /// </summary>
-        public static string taskDone {
+        internal static string taskDone {
             get {
                 return ResourceManager.GetString("taskDone", resourceCulture);
             }
@@ -756,7 +756,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 等待下载完成... 的本地化字符串。
         /// </summary>
-        public static string waitForCompletion {
+        internal static string waitForCompletion {
             get {
                 return ResourceManager.GetString("waitForCompletion", resourceCulture);
             }
@@ -765,7 +765,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 写出playLists.json 的本地化字符串。
         /// </summary>
-        public static string wrtingMasterMeta {
+        internal static string wrtingMasterMeta {
             get {
                 return ResourceManager.GetString("wrtingMasterMeta", resourceCulture);
             }
@@ -774,7 +774,7 @@ namespace N_m3u8DL_CLI {
         /// <summary>
         ///   查找类似 写出meta.json 的本地化字符串。
         /// </summary>
-        public static string wrtingMeta {
+        internal static string wrtingMeta {
             get {
                 return ResourceManager.GetString("wrtingMeta", resourceCulture);
             }

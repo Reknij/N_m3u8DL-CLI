@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class LOGGER
     {
@@ -15,7 +15,7 @@ namespace N_m3u8DL_CLI
         public const int Error = 2;
         public const int Warning = 3;
 
-        public static string LOGFILE;
+        public static string? LOGFILE;
         public static bool STOPLOG = false;
         public static string FindLog(string dir)
         {
@@ -32,14 +32,17 @@ namespace N_m3u8DL_CLI
 
         public static void InitLog()
         {
-            if (!Directory.Exists(Path.GetDirectoryName(LOGFILE)))//若文件夹不存在则新建文件夹   
-                Directory.CreateDirectory(Path.GetDirectoryName(LOGFILE)); //新建文件夹
+            if (LOGFILE == null)
+                throw new NullReferenceException("LOGFILE is null");
+            string LOGDIRECTORY = Path.GetDirectoryName(LOGFILE) ?? throw new NullReferenceException("Get directory path failed.");
+            if (!Directory.Exists(LOGDIRECTORY))//若文件夹不存在则新建文件夹   
+                Directory.CreateDirectory(LOGDIRECTORY); //新建文件夹
             //若文件存在则加序号
             int index = 1;
             var fileName = Path.GetFileNameWithoutExtension(LOGFILE);
             while (File.Exists(LOGFILE))
             {
-                LOGFILE = Path.Combine(Path.GetDirectoryName(LOGFILE), $"{fileName}-{index++}.log");
+                LOGFILE = Path.Combine(LOGDIRECTORY, $"{fileName}-{index++}.log");
             }
             string file = LOGFILE;
             string now = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
@@ -48,9 +51,10 @@ namespace N_m3u8DL_CLI
                 + "Task Start: " + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "\r\n"
                 + "Task CommandLine: " + Environment.CommandLine;
 
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "N_m3u8DL-CLI.args.txt")))
+            string argsFilePath = Path.Combine(PublicHelper.Paths.AppFilePath, "N_m3u8DL-CLI.args.txt");
+            if (File.Exists(argsFilePath))
             {
-                init += "\r\nAdditional Args: " + File.ReadAllText(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "N_m3u8DL-CLI.args.txt"));  //解析命令行
+                init += "\r\nAdditional Args: " + File.ReadAllText(argsFilePath);  //解析命令行
             }
 
             init += "\r\n\r\n";

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     class Watcher
     {
@@ -31,7 +31,7 @@ namespace N_m3u8DL_CLI
         {
             for (int i = 0; i < PartsCount; i++)
             {
-                Now += Global.GetFileCount(dir + "\\Part_" + i.ToString(DownloadManager.partsPadZero), ".ts");
+                Now += Global.GetFileCount(Path.Combine(dir, "Part_" + i.ToString(DownloadManager.partsPadZero)), ".ts");
             }
             watcher.Path = dir;
             watcher.Filter = "*.ts";

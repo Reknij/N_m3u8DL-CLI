@@ -4,7 +4,7 @@ using NiL.JS.Extensions;
 using System;
 using Array = System.Array;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     /*
      * js代码来自：https://www.imooc.com/static/moco/player/3.0.6.3/mocoplayer.js?v=202006122046

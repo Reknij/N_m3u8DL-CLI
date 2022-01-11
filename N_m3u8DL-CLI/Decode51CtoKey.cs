@@ -4,7 +4,7 @@ using NiL.JS.Extensions;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace N_m3u8DL_CLI
+namespace N_m3u8DL_CLI_core
 {
     /*
      * js代码来自：https://static1.51ctocdn.cn/edu/player/h5/h5player.js line:9421
