@@ -44,7 +44,7 @@ namespace N_m3u8DL_CLI_core
         {
             Process p = new Process();
             string terminal = "cmd.exe";
-            string argument = "ffmpeg";
+            string argument = "/c ffmpeg";
             if (OperatingSystem.IsLinux())
             {
                 terminal = "/bin/bash";
